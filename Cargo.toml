@@ -1,0 +1,10 @@
+[package]
+name = "my_2_game"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+bevy = "0.14.1"
+bevy_egui = "0.28.0"
+bevy_kira_audio = "0.20.0"
+rand = "0.8.5"
