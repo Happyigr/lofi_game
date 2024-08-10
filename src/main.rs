@@ -11,6 +11,9 @@ fn main() {
     app.add_systems(Startup, (spawn_camera, spawn_player, spawn_enemies));
     app.add_systems(Update, (move_player, check_collison_with_radius));
 
+    app.observe(on_add_cathchable);
+    app.observe(on_remove_cathchable);
+
     app.run();
 }
 
@@ -94,19 +97,50 @@ fn move_player(
 
 fn check_collison_with_radius(
     catch_radius_q: Query<&Transform, With<PlayerSettings>>,
-    mut enemy_q: Query<(&mut Enemy, &Transform, &mut Sprite), With<Enemy>>,
+    mut not_catched_en_q: Query<(Entity, &Transform), (With<Enemy>, Without<Catchable>)>,
+    mut catched_en_q: Query<(Entity, &Transform), (With<Enemy>, With<Catchable>)>,
+    mut commands: Commands,
 ) {
     let p_pos = catch_radius_q.single();
 
-    for (mut enemy, e_pos, mut sprite) in &mut enemy_q {
+    for (e_ent, e_pos) in &mut not_catched_en_q {
         if p_pos.translation.distance(e_pos.translation) < CATCH_RAD + ENEMY_SIZE / 2. {
-            enemy.catchable = true;
-            sprite.color = enemy.super_power.get_enemy_color().mix(&Color::WHITE, 0.2);
-        } else {
-            enemy.catchable = false;
-            sprite.color = enemy.super_power.get_enemy_color();
+            commands.entity(e_ent).insert(Catchable);
         }
     }
+
+    for (e_ent, e_pos) in &mut catched_en_q {
+        if p_pos.translation.distance(e_pos.translation) > CATCH_RAD + ENEMY_SIZE / 2. {
+            commands.entity(e_ent).remove::<Catchable>();
+        }
+    }
+}
+
+#[derive(Component)]
+struct Catchable;
+
+fn on_add_cathchable(trigger: Trigger<OnAdd, Catchable>, mut query: Query<(&mut Sprite, &Enemy)>) {
+    let (mut sprite, enemy) = query.get_mut(trigger.entity()).unwrap();
+    sprite.color = enemy.super_power.get_enemy_color().mix(&Color::WHITE, 0.2);
+}
+
+fn catching(
+    mut query: Query<(Entity, &Transform, &Enemy), With<Catchable>>,
+    input: Res<ButtonInput<KeyCode>>,
+) {
+    for (ent, mut transform, enemy) in &mut query {
+        if input.just_pressed(enemy.super_power.get_keycode()) {
+            dbg!();
+        }
+    }
+}
+
+fn on_remove_cathchable(
+    trigger: Trigger<OnRemove, Catchable>,
+    mut query: Query<(&mut Sprite, &Enemy)>,
+) {
+    let (mut sprite, enemy) = query.get_mut(trigger.entity()).unwrap();
+    sprite.color = enemy.super_power.get_enemy_color();
 }
 
 enum SuperPower {
@@ -115,6 +149,11 @@ enum SuperPower {
     CatchRad,
     Boom,
 }
+
+const BOOST_ACTIVATOR: KeyCode = KeyCode::Digit1;
+const JUMP_ACTIVATOR: KeyCode = KeyCode::Digit2;
+const CATCHRAD_ACTIVATOR: KeyCode = KeyCode::Digit3;
+const BOOM_ACTIVATOR: KeyCode = KeyCode::Digit4;
 
 impl SuperPower {
     fn rand_new() -> SuperPower {
@@ -137,11 +176,19 @@ impl SuperPower {
             SuperPower::Boom => ENEMY_COLOR_BOOM,
         }
     }
+
+    fn get_keycode(&self) -> KeyCode {
+        match self {
+            SuperPower::Boost => BOOST_ACTIVATOR,
+            SuperPower::Jump => JUMP_ACTIVATOR,
+            SuperPower::CatchRad => CATCHRAD_ACTIVATOR,
+            SuperPower::Boom => BOOM_ACTIVATOR,
+        }
+    }
 }
 
 #[derive(Component)]
 struct Enemy {
-    catchable: bool,
     super_power: SuperPower,
 }
 
@@ -168,10 +215,7 @@ fn spawn_enemies(mut commands: Commands) {
                 },
                 ..Default::default()
             },
-            Enemy {
-                catchable: false,
-                super_power,
-            },
+            Enemy { super_power },
         ));
     })
 }
