@@ -101,7 +101,7 @@ fn check_collison_with_radius(
     for (mut enemy, e_pos, mut sprite) in &mut enemy_q {
         if p_pos.translation.distance(e_pos.translation) < CATCH_RAD + ENEMY_SIZE / 2. {
             enemy.catchable = true;
-            sprite.color = enemy.super_power.get_catchable_enemy_color();
+            sprite.color = enemy.super_power.get_enemy_color().mix(&Color::WHITE, 0.2);
         } else {
             enemy.catchable = false;
             sprite.color = enemy.super_power.get_enemy_color();
@@ -135,15 +135,6 @@ impl SuperPower {
             SuperPower::Jump => ENEMY_COLOR_JUMP,
             SuperPower::CatchRad => ENEMY_COLOR_CATCHRAD,
             SuperPower::Boom => ENEMY_COLOR_BOOM,
-        }
-    }
-
-    fn get_catchable_enemy_color(&self) -> Color {
-        match self {
-            SuperPower::Boost => ENEMY_COLOR_BOOST.mix(&Color::WHITE, 0.2),
-            SuperPower::Jump => ENEMY_COLOR_JUMP.mix(&Color::WHITE, 0.2),
-            SuperPower::CatchRad => ENEMY_COLOR_CATCHRAD.mix(&Color::WHITE, 0.2),
-            SuperPower::Boom => ENEMY_COLOR_BOOM.mix(&Color::WHITE, 0.2),
         }
     }
 }
