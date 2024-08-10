@@ -9,7 +9,8 @@ fn main() {
 
     app.add_plugins(DefaultPlugins);
     app.add_systems(Startup, (spawn_camera, spawn_player, spawn_enemies));
-    app.add_systems(Update, (move_player, check_collison_with_radius));
+    // app.add_systems(Update, (move_player, check_collison_with_radius));
+    app.add_systems(Update, check_collison_with_radius);
 
     app.observe(on_add_cathchable);
     app.observe(on_remove_cathchable);
@@ -22,14 +23,14 @@ fn spawn_camera(mut commands: Commands) {
 }
 
 #[derive(Component)]
-struct PlayerSettings {
+struct Player {
     up_key: KeyCode,
     down_key: KeyCode,
     right_key: KeyCode,
     left_key: KeyCode,
 }
 
-impl Default for PlayerSettings {
+impl Default for Player {
     fn default() -> Self {
         Self {
             up_key: KeyCode::KeyW,
@@ -54,7 +55,7 @@ fn spawn_player(
 ) {
     commands
         .spawn((
-            PlayerSettings::default(),
+            Player::default(),
             SpriteBundle {
                 transform: Transform::from_translation(PLAYER_SPAWN_POS),
                 sprite: Sprite {
@@ -74,34 +75,49 @@ fn spawn_player(
         });
 }
 
-fn move_player(
-    mut player_q: Query<(&mut Transform, &PlayerSettings)>,
-    input: Res<ButtonInput<KeyCode>>,
-    time: Res<Time>,
-) {
-    for (mut transform, settings) in &mut player_q {
-        if input.pressed(settings.up_key) {
-            transform.translation.y += PLAYER_SPEED * time.delta_seconds();
-        }
-        if input.pressed(settings.down_key) {
-            transform.translation.y -= PLAYER_SPEED * time.delta_seconds();
-        }
-        if input.pressed(settings.left_key) {
-            transform.translation.x += PLAYER_SPEED * time.delta_seconds();
-        }
-        if input.pressed(settings.right_key) {
-            transform.translation.x -= PLAYER_SPEED * time.delta_seconds();
-        }
-    }
-}
+// fn move_player(
+//     mut player_q: Query<(&mut Transform, &Player)>,
+//     input: Res<ButtonInput<KeyCode>>,
+//     time: Res<Time>,
+// ) {
+//     for (mut transform, settings) in &mut player_q {
+//         if input.pressed(settings.up_key) {
+//             transform.translation.y += PLAYER_SPEED * time.delta_seconds();
+//         }
+//         if input.pressed(settings.down_key) {
+//             transform.translation.y -= PLAYER_SPEED * time.delta_seconds();
+//         }
+//         if input.pressed(settings.left_key) {
+//             transform.translation.x += PLAYER_SPEED * time.delta_seconds();
+//         }
+//         if input.pressed(settings.right_key) {
+//             transform.translation.x -= PLAYER_SPEED * time.delta_seconds();
+//         }
+//     }
+// }
 
 fn check_collison_with_radius(
-    catch_radius_q: Query<&Transform, With<PlayerSettings>>,
     mut not_catched_en_q: Query<(Entity, &Transform), (With<Enemy>, Without<Catchable>)>,
-    mut catched_en_q: Query<(Entity, &Transform), (With<Enemy>, With<Catchable>)>,
+    mut catched_en_q: Query<(Entity, &Transform, &Enemy), With<Catchable>>,
+    mut player_q: Query<(&mut Transform, &Player), Without<Enemy>>,
+    time: Res<Time>,
+    input: Res<ButtonInput<KeyCode>>,
     mut commands: Commands,
 ) {
-    let p_pos = catch_radius_q.single();
+    let (mut p_pos, player_settings) = player_q.get_single_mut().unwrap();
+
+    if input.pressed(player_settings.up_key) {
+        p_pos.translation.y += PLAYER_SPEED * time.delta_seconds();
+    }
+    if input.pressed(player_settings.down_key) {
+        p_pos.translation.y -= PLAYER_SPEED * time.delta_seconds();
+    }
+    if input.pressed(player_settings.left_key) {
+        p_pos.translation.x += PLAYER_SPEED * time.delta_seconds();
+    }
+    if input.pressed(player_settings.right_key) {
+        p_pos.translation.x -= PLAYER_SPEED * time.delta_seconds();
+    }
 
     for (e_ent, e_pos) in &mut not_catched_en_q {
         if p_pos.translation.distance(e_pos.translation) < CATCH_RAD + ENEMY_SIZE / 2. {
@@ -109,7 +125,12 @@ fn check_collison_with_radius(
         }
     }
 
-    for (e_ent, e_pos) in &mut catched_en_q {
+    for (e_ent, e_pos, enemy) in &mut catched_en_q {
+        if input.just_pressed(enemy.super_power.get_keycode()) {
+            dbg!("some enemy killed");
+            p_pos.translation = e_pos.translation;
+            commands.entity(e_ent).despawn();
+        }
         if p_pos.translation.distance(e_pos.translation) > CATCH_RAD + ENEMY_SIZE / 2. {
             commands.entity(e_ent).remove::<Catchable>();
         }
@@ -124,17 +145,6 @@ fn on_add_cathchable(trigger: Trigger<OnAdd, Catchable>, mut query: Query<(&mut 
     sprite.color = enemy.super_power.get_enemy_color().mix(&Color::WHITE, 0.2);
 }
 
-fn catching(
-    mut query: Query<(Entity, &Transform, &Enemy), With<Catchable>>,
-    input: Res<ButtonInput<KeyCode>>,
-) {
-    for (ent, mut transform, enemy) in &mut query {
-        if input.just_pressed(enemy.super_power.get_keycode()) {
-            dbg!();
-        }
-    }
-}
-
 fn on_remove_cathchable(
     trigger: Trigger<OnRemove, Catchable>,
     mut query: Query<(&mut Sprite, &Enemy)>,
@@ -143,6 +153,7 @@ fn on_remove_cathchable(
     sprite.color = enemy.super_power.get_enemy_color();
 }
 
+#[derive(Clone, Debug, PartialEq, Eq)]
 enum SuperPower {
     Boost,
     Jump,
@@ -185,6 +196,15 @@ impl SuperPower {
             SuperPower::Boom => BOOM_ACTIVATOR,
         }
     }
+
+    fn get_keycode_str(&self) -> &str {
+        match self {
+            SuperPower::Boost => "1",
+            SuperPower::Jump => "2",
+            SuperPower::CatchRad => "3",
+            SuperPower::Boom => "4",
+        }
+    }
 }
 
 #[derive(Component)]
@@ -201,21 +221,30 @@ const ENEMY_COLOR_BOOM: Color = Color::linear_rgba(0.2, 0.2, 0.2, 1.);
 fn spawn_enemies(mut commands: Commands) {
     (0..6).for_each(|_| {
         let super_power = SuperPower::rand_new();
-        commands.spawn((
-            SpriteBundle {
-                transform: Transform::from_xyz(
-                    rand::thread_rng().gen_range(-MAP_W / 2.0..MAP_W / 2.),
-                    rand::thread_rng().gen_range(-MAP_H / 2.0..MAP_H / 2.),
-                    1.,
-                ),
-                sprite: Sprite {
-                    color: super_power.get_enemy_color(),
-                    custom_size: Some(Vec2::new(ENEMY_SIZE, ENEMY_SIZE)),
+        commands
+            .spawn((
+                SpriteBundle {
+                    transform: Transform::from_xyz(
+                        rand::thread_rng().gen_range(-MAP_W / 2.0..MAP_W / 2.),
+                        rand::thread_rng().gen_range(-MAP_H / 2.0..MAP_H / 2.),
+                        1.,
+                    ),
+                    sprite: Sprite {
+                        color: super_power.get_enemy_color(),
+                        custom_size: Some(Vec2::new(ENEMY_SIZE, ENEMY_SIZE)),
+                        ..Default::default()
+                    },
                     ..Default::default()
                 },
-                ..Default::default()
-            },
-            Enemy { super_power },
-        ));
+                Enemy {
+                    super_power: super_power.clone(),
+                },
+            ))
+            .with_children(|parent| {
+                parent.spawn(Text2dBundle {
+                    text: Text::from_section(super_power.get_keycode_str(), TextStyle::default()),
+                    ..Default::default()
+                });
+            });
     })
 }
