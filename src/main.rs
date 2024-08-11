@@ -1,7 +1,10 @@
+mod constants;
+
 use bevy::{
     prelude::*,
     sprite::{MaterialMesh2dBundle, Mesh2dHandle},
 };
+use constants::*;
 use rand::Rng;
 
 fn main() {
@@ -40,13 +43,6 @@ impl Default for Player {
         }
     }
 }
-
-const PLAYER_SIZE: f32 = 32.0;
-const PLAYER_SPEED: f32 = 100.0;
-const PLAYER_SPAWN_POS: Vec3 = Vec3::ZERO;
-const CATCH_RAD: f32 = 100.;
-const MAP_H: f32 = 400.;
-const MAP_W: f32 = 700.;
 
 fn spawn_player(
     mut commands: Commands,
@@ -161,11 +157,6 @@ enum SuperPower {
     Boom,
 }
 
-const BOOST_ACTIVATOR: KeyCode = KeyCode::Digit1;
-const JUMP_ACTIVATOR: KeyCode = KeyCode::Digit2;
-const CATCHRAD_ACTIVATOR: KeyCode = KeyCode::Digit3;
-const BOOM_ACTIVATOR: KeyCode = KeyCode::Digit4;
-
 impl SuperPower {
     fn rand_new() -> SuperPower {
         let num: u8 = rand::thread_rng().gen_range(0..3);
@@ -212,12 +203,6 @@ struct Enemy {
     super_power: SuperPower,
 }
 
-const ENEMY_SIZE: f32 = 22.0;
-const ENEMY_COLOR_BOOST: Color = Color::linear_rgba(0.5, 0., 0., 1.);
-const ENEMY_COLOR_JUMP: Color = Color::linear_rgba(0., 0.5, 0., 1.);
-const ENEMY_COLOR_CATCHRAD: Color = Color::linear_rgba(0., 0., 0.5, 1.);
-const ENEMY_COLOR_BOOM: Color = Color::linear_rgba(0.2, 0.2, 0.2, 1.);
-
 fn spawn_enemies(mut commands: Commands) {
     (0..6).for_each(|_| {
         let super_power = SuperPower::rand_new();
@@ -242,6 +227,7 @@ fn spawn_enemies(mut commands: Commands) {
             ))
             .with_children(|parent| {
                 parent.spawn(Text2dBundle {
+                    transform: Transform::from_xyz(0., 0., TEXT_Z),
                     text: Text::from_section(super_power.get_keycode_str(), TextStyle::default()),
                     ..Default::default()
                 });
