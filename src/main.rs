@@ -100,18 +100,19 @@ fn check_collison_with_radius(
     input: Res<ButtonInput<KeyCode>>,
     mut commands: Commands,
 ) {
-    let (mut p_pos, player_settings) = player_q.get_single_mut().unwrap();
+    let (mut p_pos, p_settings) = player_q.get_single_mut().unwrap();
 
-    if input.pressed(player_settings.up_key) {
+    // move player temp
+    if input.pressed(p_settings.up_key) {
         p_pos.translation.y += PLAYER_SPEED * time.delta_seconds();
     }
-    if input.pressed(player_settings.down_key) {
+    if input.pressed(p_settings.down_key) {
         p_pos.translation.y -= PLAYER_SPEED * time.delta_seconds();
     }
-    if input.pressed(player_settings.left_key) {
+    if input.pressed(p_settings.left_key) {
         p_pos.translation.x += PLAYER_SPEED * time.delta_seconds();
     }
-    if input.pressed(player_settings.right_key) {
+    if input.pressed(p_settings.right_key) {
         p_pos.translation.x -= PLAYER_SPEED * time.delta_seconds();
     }
 
@@ -121,11 +122,17 @@ fn check_collison_with_radius(
         }
     }
 
-    for (e_ent, e_pos, enemy) in &mut catched_en_q {
-        if input.just_pressed(enemy.super_power.get_keycode()) {
-            dbg!("some enemy killed");
+    for (e_ent, e_pos, e_catched) in &mut catched_en_q {
+        if input.just_pressed(e_catched.super_power.get_keycode()) {
+            // killing the enemy if were catched
             p_pos.translation = e_pos.translation;
-            commands.entity(e_ent).despawn();
+            commands.entity(e_ent).despawn_recursive();
+
+            // spawning new enemy
+            let (e_new, e_new_text) = EnemyBundle::new_random();
+            commands.spawn(e_new).with_children(|parent| {
+                parent.spawn(e_new_text);
+            });
         }
         if p_pos.translation.distance(e_pos.translation) > CATCH_RAD + ENEMY_SIZE / 2. {
             commands.entity(e_ent).remove::<Catchable>();
@@ -205,10 +212,29 @@ struct Enemy {
 
 fn spawn_enemies(mut commands: Commands) {
     (0..6).for_each(|_| {
+        let (enemy, text) = EnemyBundle::new_random();
+        commands.spawn(enemy).with_children(|parent| {
+            parent.spawn(text);
+        });
+    })
+}
+
+#[derive(Bundle)]
+struct EnemyBundle {
+    sprite: SpriteBundle,
+    enemy: Enemy,
+}
+
+impl EnemyBundle {
+    fn new_random() -> (EnemyBundle, Text2dBundle) {
         let super_power = SuperPower::rand_new();
-        commands
-            .spawn((
-                SpriteBundle {
+        EnemyBundle::new(super_power)
+    }
+
+    fn new(super_power: SuperPower) -> (EnemyBundle, Text2dBundle) {
+        (
+            EnemyBundle {
+                sprite: SpriteBundle {
                     transform: Transform::from_xyz(
                         rand::thread_rng().gen_range(-MAP_W / 2.0..MAP_W / 2.),
                         rand::thread_rng().gen_range(-MAP_H / 2.0..MAP_H / 2.),
@@ -221,16 +247,15 @@ fn spawn_enemies(mut commands: Commands) {
                     },
                     ..Default::default()
                 },
-                Enemy {
+                enemy: Enemy {
                     super_power: super_power.clone(),
                 },
-            ))
-            .with_children(|parent| {
-                parent.spawn(Text2dBundle {
-                    transform: Transform::from_xyz(0., 0., TEXT_Z),
-                    text: Text::from_section(super_power.get_keycode_str(), TextStyle::default()),
-                    ..Default::default()
-                });
-            });
-    })
+            },
+            Text2dBundle {
+                transform: Transform::from_xyz(0., 0., TEXT_Z),
+                text: Text::from_section(super_power.get_keycode_str(), TextStyle::default()),
+                ..Default::default()
+            },
+        )
+    }
 }
