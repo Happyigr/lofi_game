@@ -13,9 +13,14 @@ fn main() {
     let mut app = App::new();
 
     app.add_plugins(DefaultPlugins);
-    app.add_systems(Startup, (spawn_camera, spawn_player, spawn_enemies));
+    // app.add_event::<AnimEvent>();
+    app.add_systems(
+        Startup,
+        (spawn_camera, spawn_player, spawn_enemies, spawn_animation),
+    );
     // app.add_systems(Update, (move_player, check_collison_with_radius));
-    app.add_systems(Update, check_collison_with_radius);
+    // trigger_animation_in_enemy,
+    app.add_systems(Update, (check_collison_with_radius, execute_animations));
 
     app.observe(on_add_cathchable);
     app.observe(on_remove_cathchable);
@@ -49,6 +54,75 @@ impl AnimConfig {
     fn timer_from_fps(fps: u8) -> Timer {
         Timer::new(Duration::from_secs_f32(1.0 / (fps as f32)), TimerMode::Once)
     }
+}
+
+#[derive(Component)]
+struct BoomAnim;
+
+// #[derive(Event)]
+// struct AnimEvent(Vec3);
+
+// fn trigger_animation_in_enemy(
+//     mut event_anim: EventReader<AnimEvent>,
+//     mut query: Query<(&mut Transform, &mut AnimConfig)>,
+// ) {
+//     for ev in event_anim.read() {
+//         // we expect the Component of type S to be used as a marker Component by only a single entity
+//         let (mut transform, mut animation) = query.single_mut();
+//
+//         transform.translation = ev.0;
+//
+//         // we create a new timer when the animation is triggered
+//         animation.frame_timer = AnimConfig::timer_from_fps(animation.fps);
+//     }
+// }
+
+// This system loops through all the sprites in the `TextureAtlas`, from  `first_sprite_index` to
+// `last_sprite_index` (both defined in `AnimationConfig`).
+fn execute_animations(time: Res<Time>, mut query: Query<(&mut AnimConfig, &mut TextureAtlas)>) {
+    for (mut config, mut atlas) in &mut query {
+        // we track how long the current sprite has been displayed for
+        config.frame_timer.tick(time.delta());
+
+        // If it has been displayed for the user-defined amount of time (fps)...
+        if config.frame_timer.just_finished() {
+            if atlas.index == config.last_sprite_i {
+                // ...and it IS the last frame, then we move back to the first frame and stop.
+                atlas.index = config.first_sprite_i;
+            } else {
+                // ...and it is NOT the last frame, then we move to the next frame...
+                atlas.index += 1;
+                // ...and reset the frame timer to start counting all over again
+                config.frame_timer = AnimConfig::timer_from_fps(config.fps);
+            }
+        }
+    }
+}
+
+fn spawn_animation(
+    mut commands: Commands,
+    asset_server: Res<AssetServer>,
+    mut texture_atlas_layouts: ResMut<Assets<TextureAtlasLayout>>,
+) {
+    let layout = TextureAtlasLayout::from_grid(UVec2::splat(512), 8, 8, None, None);
+
+    let anim_config = AnimConfig::new(1, 63, 10);
+
+    commands.spawn((
+        SpriteBundle {
+            // transform: Transform::from_translation(ANIM_POS),
+            transform: Transform::from_scale(Vec3::splat(6.0))
+                .with_translation(Vec3::new(-50.0, 0.0, 0.0)),
+            texture: asset_server.load("explosion_4.png"),
+            ..Default::default()
+        },
+        TextureAtlas {
+            layout: texture_atlas_layouts.add(layout),
+            index: anim_config.first_sprite_i,
+        },
+        BoomAnim,
+        anim_config,
+    ));
 }
 
 #[derive(Component)]
@@ -181,8 +255,26 @@ fn on_remove_cathchable(
 #[derive(Component)]
 struct EnemyToDespawn;
 
-fn on_enemy_despawn(trigger: Trigger<OnAdd, EnemyToDespawn>, mut commands: Commands) {
+fn on_enemy_despawn(
+    trigger: Trigger<OnAdd, EnemyToDespawn>,
+    mut commands: Commands,
+    query: Query<&Transform, (With<Enemy>, With<EnemyToDespawn>)>,
+    // mut ev_anim: EventWriter<AnimEvent>,
+    mut anim_q: Query<(&mut Transform, &mut AnimConfig), Without<Enemy>>,
+) {
     let e_ent = trigger.entity();
+
+    let enemy_t = query.get(e_ent).unwrap();
+
+    // start animation on the place of the enemy
+    // ev_anim.send(AnimEvent(enemy_t.translation));
+
+    let (mut anim_t, mut animation) = anim_q.single_mut();
+
+    anim_t.translation = enemy_t.translation;
+
+    // we create a new timer when the animation is triggered
+    animation.frame_timer = AnimConfig::timer_from_fps(animation.fps);
 
     // despawn enemy
     commands.entity(e_ent).despawn_recursive();
