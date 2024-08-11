@@ -1,5 +1,7 @@
 mod constants;
 
+use std::time::Duration;
+
 use bevy::{
     prelude::*,
     sprite::{MaterialMesh2dBundle, Mesh2dHandle},
@@ -17,12 +19,36 @@ fn main() {
 
     app.observe(on_add_cathchable);
     app.observe(on_remove_cathchable);
+    app.observe(on_enemy_despawn);
 
     app.run();
 }
 
 fn spawn_camera(mut commands: Commands) {
     commands.spawn(Camera2dBundle::default());
+}
+
+#[derive(Component)]
+struct AnimConfig {
+    first_sprite_i: usize,
+    last_sprite_i: usize,
+    fps: u8,
+    frame_timer: Timer,
+}
+
+impl AnimConfig {
+    fn new(first: usize, last: usize, fps: u8) -> Self {
+        Self {
+            first_sprite_i: first,
+            last_sprite_i: last,
+            fps,
+            frame_timer: Self::timer_from_fps(fps),
+        }
+    }
+
+    fn timer_from_fps(fps: u8) -> Timer {
+        Timer::new(Duration::from_secs_f32(1.0 / (fps as f32)), TimerMode::Once)
+    }
 }
 
 #[derive(Component)]
@@ -116,6 +142,7 @@ fn check_collison_with_radius(
         p_pos.translation.x -= PLAYER_SPEED * time.delta_seconds();
     }
 
+    // if in the catching range, add catchable component
     for (e_ent, e_pos) in &mut not_catched_en_q {
         if p_pos.translation.distance(e_pos.translation) < CATCH_RAD + ENEMY_SIZE / 2. {
             commands.entity(e_ent).insert(Catchable);
@@ -123,17 +150,12 @@ fn check_collison_with_radius(
     }
 
     for (e_ent, e_pos, e_catched) in &mut catched_en_q {
+        // if catched, teleport to the enemy and kill it
         if input.just_pressed(e_catched.super_power.get_keycode()) {
-            // killing the enemy if were catched
             p_pos.translation = e_pos.translation;
             commands.entity(e_ent).despawn_recursive();
-
-            // spawning new enemy
-            let (e_new, e_new_text) = EnemyBundle::new_random();
-            commands.spawn(e_new).with_children(|parent| {
-                parent.spawn(e_new_text);
-            });
         }
+        // if not in the range, not catchable more.
         if p_pos.translation.distance(e_pos.translation) > CATCH_RAD + ENEMY_SIZE / 2. {
             commands.entity(e_ent).remove::<Catchable>();
         }
@@ -154,6 +176,22 @@ fn on_remove_cathchable(
 ) {
     let (mut sprite, enemy) = query.get_mut(trigger.entity()).unwrap();
     sprite.color = enemy.super_power.get_enemy_color();
+}
+
+#[derive(Component)]
+struct EnemyToDespawn;
+
+fn on_enemy_despawn(trigger: Trigger<OnAdd, EnemyToDespawn>, mut commands: Commands) {
+    let e_ent = trigger.entity();
+
+    // despawn enemy
+    commands.entity(e_ent).despawn_recursive();
+
+    // spawning new enemy
+    let (e_new, e_new_text) = EnemyBundle::new_random();
+    commands.spawn(e_new).with_children(|parent| {
+        parent.spawn(e_new_text);
+    });
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
