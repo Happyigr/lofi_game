@@ -1,5 +1,7 @@
 use bevy::{color::Color, math::Vec3, prelude::KeyCode};
 
+pub const EXPLOSION_SPRITESHEET: &str = "explosion_4.png";
+
 pub const PLAYER_SIZE: f32 = 32.0;
 pub const PLAYER_SPEED: f32 = 100.0;
 pub const PLAYER_SPAWN_POS: Vec3 = Vec3::ZERO;
@@ -8,7 +10,6 @@ pub const MAP_H: f32 = 400.;
 pub const MAP_W: f32 = 700.;
 
 pub const TEXT_Z: f32 = 10.;
-pub const ANIM_POS: Vec3 = Vec3::new(5000., 5000., 2.);
 
 pub const BOOST_ACTIVATOR: KeyCode = KeyCode::Digit1;
 pub const JUMP_ACTIVATOR: KeyCode = KeyCode::Digit2;
