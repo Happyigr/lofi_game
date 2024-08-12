@@ -1,36 +1,8 @@
 use crate::constants::*;
-use std::time::Duration;
 
 use rand::Rng;
 
 use bevy::prelude::*;
-use bevy::time::{Timer, TimerMode};
-
-#[derive(Component)]
-pub struct BoomAnim;
-
-#[derive(Component)]
-pub struct AnimConfig {
-    pub first_sprite_i: usize,
-    pub last_sprite_i: usize,
-    pub fps: u8,
-    pub frame_timer: Timer,
-}
-
-impl AnimConfig {
-    pub fn new(first: usize, last: usize, fps: u8) -> Self {
-        Self {
-            first_sprite_i: first,
-            last_sprite_i: last,
-            fps,
-            frame_timer: Self::timer_from_fps(fps),
-        }
-    }
-
-    pub fn timer_from_fps(fps: u8) -> Timer {
-        Timer::new(Duration::from_secs_f32(1.0 / (fps as f32)), TimerMode::Once)
-    }
-}
 
 #[derive(Component)]
 pub struct Player {
@@ -56,6 +28,9 @@ pub struct Catchable;
 
 #[derive(Component)]
 pub struct EnemyToDespawn;
+
+#[derive(Component)]
+pub struct SpawnBoomAnim(pub Transform);
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum SuperPower {

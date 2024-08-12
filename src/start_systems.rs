@@ -3,37 +3,12 @@ use bevy::{
     sprite::{MaterialMesh2dBundle, Mesh2dHandle},
 };
 
+use crate::bundles::*;
 use crate::components::*;
 use crate::constants::*;
 
 pub fn spawn_camera(mut commands: Commands) {
     commands.spawn(Camera2dBundle::default());
-}
-
-pub fn spawn_animation(
-    mut commands: Commands,
-    asset_server: Res<AssetServer>,
-    mut texture_atlas_layouts: ResMut<Assets<TextureAtlasLayout>>,
-) {
-    let layout = TextureAtlasLayout::from_grid(UVec2::splat(512), 8, 8, None, None);
-
-    let anim_config = AnimConfig::new(1, 63, 10);
-
-    commands.spawn((
-        SpriteBundle {
-            // transform: Transform::from_translation(ANIM_POS),
-            transform: Transform::from_scale(Vec3::splat(6.0))
-                .with_translation(Vec3::new(-50.0, 0.0, 0.0)),
-            texture: asset_server.load("explosion_4.png"),
-            ..Default::default()
-        },
-        TextureAtlas {
-            layout: texture_atlas_layouts.add(layout),
-            index: anim_config.first_sprite_i,
-        },
-        BoomAnim,
-        anim_config,
-    ));
 }
 
 pub fn spawn_player(

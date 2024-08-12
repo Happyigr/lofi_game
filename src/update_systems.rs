@@ -1,5 +1,6 @@
 use crate::components::*;
 use crate::constants::*;
+use crate::AnimConfig;
 use bevy::prelude::*;
 
 pub fn check_collison_with_radius(
@@ -9,6 +10,8 @@ pub fn check_collison_with_radius(
     time: Res<Time>,
     input: Res<ButtonInput<KeyCode>>,
     mut commands: Commands,
+    asset_server: Res<AssetServer>,
+    mut texture_atlas_layouts: ResMut<Assets<TextureAtlasLayout>>,
 ) {
     let (mut p_pos, p_settings) = player_q.get_single_mut().unwrap();
 
@@ -38,6 +41,24 @@ pub fn check_collison_with_radius(
         if input.just_pressed(e_catched.super_power.get_keycode()) {
             p_pos.translation = e_pos.translation;
             commands.entity(e_ent).despawn_recursive();
+
+            dbg!("spawned");
+            let layout = TextureAtlasLayout::from_grid(UVec2::splat(512), 8, 8, None, None);
+            let texture = asset_server.load(EXPLOSION_SPRITESHEET);
+            let atlas = texture_atlas_layouts.add(layout);
+
+            commands.spawn((
+                SpriteBundle {
+                    transform: e_pos.clone(),
+                    texture: texture.clone(),
+                    ..Default::default()
+                },
+                TextureAtlas {
+                    layout: atlas,
+                    index: 1,
+                },
+                AnimConfig::new(1, 64, 10),
+            ));
         }
         // if not in the range, not catchable more.
         if p_pos.translation.distance(e_pos.translation) > CATCH_RAD + ENEMY_SIZE / 2. {
