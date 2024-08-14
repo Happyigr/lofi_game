@@ -1,36 +1,6 @@
 use crate::constants::*;
-
-use rand::Rng;
-
 use bevy::prelude::*;
-
-#[derive(Component)]
-pub struct Player {
-    pub up_key: KeyCode,
-    pub down_key: KeyCode,
-    pub right_key: KeyCode,
-    pub left_key: KeyCode,
-}
-
-impl Default for Player {
-    fn default() -> Self {
-        Self {
-            up_key: KeyCode::KeyW,
-            down_key: KeyCode::KeyS,
-            right_key: KeyCode::KeyA,
-            left_key: KeyCode::KeyD,
-        }
-    }
-}
-
-#[derive(Component)]
-pub struct Catchable;
-
-#[derive(Component)]
-pub struct EnemyToDespawn;
-
-#[derive(Component)]
-pub struct SpawnBoomAnim(pub Transform);
+use rand::Rng;
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum SuperPower {
@@ -79,8 +49,4 @@ impl SuperPower {
             SuperPower::Boom => "4",
         }
     }
-}
-#[derive(Component)]
-pub struct Enemy {
-    pub super_power: SuperPower,
 }

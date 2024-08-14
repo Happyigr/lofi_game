@@ -1,8 +1,22 @@
-use crate::components::*;
+use super::SuperPower;
 use crate::constants::*;
 use bevy::prelude::*;
 use rand::Rng;
 
+// some Tags for observers
+#[derive(Component)]
+pub struct Catchable;
+
+#[derive(Component)]
+pub struct EnemyToDespawn;
+
+// Enemy tag wich have some superpower on kill
+#[derive(Component)]
+pub struct Enemy {
+    pub super_power: SuperPower,
+}
+
+// Bundle of enemy, to get the Enemy, with it childs component (text)
 #[derive(Bundle)]
 pub struct EnemyBundle {
     sprite: SpriteBundle,
@@ -10,11 +24,14 @@ pub struct EnemyBundle {
 }
 
 impl EnemyBundle {
+    // returns a new enemy with random superpower
     pub fn new_random() -> (EnemyBundle, Text2dBundle) {
         let super_power = SuperPower::rand_new();
         EnemyBundle::new(super_power)
     }
 
+    // returns a bundle with SpriteBundle with enemy Component and Text2dBundle as child, to easily
+    // control text
     pub fn new(super_power: SuperPower) -> (EnemyBundle, Text2dBundle) {
         (
             EnemyBundle {

@@ -11,6 +11,11 @@ pub const MAP_W: f32 = 700.;
 
 pub const TEXT_Z: f32 = 10.;
 
+pub const PLAYER_UP: KeyCode = KeyCode::KeyW;
+pub const PLAYER_DOWN: KeyCode = KeyCode::KeyS;
+pub const PLAYER_LEFT: KeyCode = KeyCode::KeyA;
+pub const PLAYER_RIGHT: KeyCode = KeyCode::KeyD;
+
 pub const BOOST_ACTIVATOR: KeyCode = KeyCode::Digit1;
 pub const JUMP_ACTIVATOR: KeyCode = KeyCode::Digit2;
 pub const CATCHRAD_ACTIVATOR: KeyCode = KeyCode::Digit3;

@@ -1,9 +1,10 @@
-use std::time::Duration;
-
-use crate::bundles::*;
-use crate::components::*;
-use crate::constants::EXPLOSION_SPRITESHEET;
 use bevy::prelude::*;
+
+use crate::{
+    animation::AnimConfig,
+    constants::EXPLOSION_SPRITESHEET,
+    enemy::{Catchable, Enemy, EnemyBundle, EnemyToDespawn},
+};
 
 pub fn on_add_cathchable(
     trigger: Trigger<OnAdd, Catchable>,
@@ -52,7 +53,7 @@ pub fn on_enemy_despawn(
             layout: atlas,
             index: 1,
         },
-        AnimConfig::new(1, 64, 10),
+        AnimConfig::new(1, 62, 30),
     ));
 
     // despawn enemy
@@ -64,54 +65,3 @@ pub fn on_enemy_despawn(
         parent.spawn(e_new_text);
     });
 }
-
-#[derive(Component)]
-pub struct AnimConfig {
-    pub timer: Timer,
-    pub first_i: usize,
-    pub last_i: usize,
-    pub fps: u8,
-}
-
-impl AnimConfig {
-    pub fn new(first: usize, last: usize, fps: u8) -> Self {
-        Self {
-            first_i: first,
-            last_i: last,
-            fps,
-            timer: Self::timer_from_fps(fps),
-        }
-    }
-
-    pub fn timer_from_fps(fps: u8) -> Timer {
-        Timer::new(Duration::from_secs_f32(1.0 / (fps as f32)), TimerMode::Once)
-    }
-}
-
-// pub fn on_boom_animation_pending(
-//     trigger: Trigger<OnAdd, SpawnBoomAnim>,
-//     query: Query<&Transform, With<SpawnBoomAnim>>,
-//     mut commands: Commands,
-//     asset_server: Res<AssetServer>,
-//     mut texture_atlas_layouts: ResMut<Assets<TextureAtlasLayout>>,
-// ) {
-//     dbg!("spawned");
-//     let layout = TextureAtlasLayout::from_grid(UVec2::splat(512), 8, 8, None, None);
-//     let texture = asset_server.load(EXPLOSION_SPRITESHEET);
-//     let atlas = texture_atlas_layouts.add(layout);
-//
-//     let boom_t = query.get(trigger.entity()).unwrap();
-//
-//     commands.spawn((
-//         SpriteBundle {
-//             transform: boom_t.clone(),
-//             texture: texture.clone(),
-//             ..Default::default()
-//         },
-//         TextureAtlas {
-//             layout: atlas,
-//             index: 1,
-//         },
-//         AnimConfig::new(1, 64, 10),
-//     ));
-// }
