@@ -3,13 +3,6 @@ use crate::constants::*;
 use bevy::prelude::*;
 use rand::Rng;
 
-// some Tags for observers
-#[derive(Component)]
-pub struct Catchable;
-
-#[derive(Component)]
-pub struct EnemyToDespawn;
-
 // Enemy tag wich have some superpower on kill
 #[derive(Component)]
 pub struct Enemy {

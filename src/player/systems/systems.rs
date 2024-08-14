@@ -37,7 +37,6 @@ pub fn check_collision_with_enemy(
 pub fn try_to_kill_enemy(
     mut catched_en_q: Query<(Entity, &Transform, &Enemy), With<Catchable>>,
     mut player_q: Query<&mut Transform, (With<Player>, Without<Enemy>)>,
-    mut commands: Commands,
     mut ev_enemy_kill: EventWriter<EnemyKilled>,
     input: Res<ButtonInput<KeyCode>>,
 ) {
