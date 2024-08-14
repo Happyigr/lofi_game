@@ -2,9 +2,15 @@ use bevy::prelude::*;
 
 use crate::{
     animation::AnimConfig,
-    constants::EXPLOSION_SPRITESHEET,
-    enemy::{Catchable, Enemy, EnemyBundle, EnemyToDespawn},
+    assets::Materials,
+    enemy::{Enemy, EnemyBundle},
 };
+
+#[derive(Event)]
+pub struct EnemyKilled(pub Entity);
+
+#[derive(Component)]
+pub struct Catchable;
 
 pub fn on_add_cathchable(
     trigger: Trigger<OnAdd, Catchable>,
@@ -23,45 +29,36 @@ pub fn on_remove_cathchable(
 }
 
 // dont working
-pub fn on_enemy_despawn(
-    trigger: Trigger<OnAdd, EnemyToDespawn>,
+pub fn on_enemy_kill(
+    mut ev_enemy_killed: EventReader<EnemyKilled>,
+    materials: Res<Materials>,
+    en_q: Query<&Transform, With<Enemy>>,
     mut commands: Commands,
-    query: Query<&Transform, (With<Enemy>, With<EnemyToDespawn>)>,
-    asset_server: Res<AssetServer>,
-    mut texture_atlas_layouts: ResMut<Assets<TextureAtlasLayout>>,
-    // mut ev_anim: EventWriter<AnimEvent>,
 ) {
-    let e_ent = trigger.entity();
+    for ev in ev_enemy_killed.read() {
+        let e_pos = en_q.get(ev.0).unwrap();
 
-    let enemy_t = query.get(e_ent).unwrap();
-    // // spawning a animation \pending entity
-    // let anim = commands.spawn_empty().id();
-    // commands.entity(anim).insert(SpawnBoomAnim(enemy_t.clone()));
+        // spawning animation
+        commands.spawn((
+            SpriteBundle {
+                transform: e_pos.clone(),
+                texture: materials.boom_animation_texture.clone(),
+                ..Default::default()
+            },
+            TextureAtlas {
+                layout: materials.boom_animation_layout.clone(),
+                index: 1,
+            },
+            AnimConfig::new(1, 63, 40),
+        ));
 
-    dbg!("spawned");
-    let layout = TextureAtlasLayout::from_grid(UVec2::splat(512), 8, 8, None, None);
-    let texture = asset_server.load(EXPLOSION_SPRITESHEET);
-    let atlas = texture_atlas_layouts.add(layout);
+        // despawn enemy
+        commands.entity(ev.0).despawn_recursive();
 
-    commands.spawn((
-        SpriteBundle {
-            transform: enemy_t.clone(),
-            texture: texture.clone(),
-            ..Default::default()
-        },
-        TextureAtlas {
-            layout: atlas,
-            index: 1,
-        },
-        AnimConfig::new(1, 62, 30),
-    ));
-
-    // despawn enemy
-    commands.entity(e_ent).despawn_recursive();
-
-    // spawning new enemy
-    let (e_new, e_new_text) = EnemyBundle::new_random();
-    commands.spawn(e_new).with_children(|parent| {
-        parent.spawn(e_new_text);
-    });
+        // spawning new enemy
+        let (e_new, e_new_text) = EnemyBundle::new_random();
+        commands.spawn(e_new).with_children(|parent| {
+            parent.spawn(e_new_text);
+        });
+    }
 }

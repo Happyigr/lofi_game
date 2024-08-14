@@ -19,3 +19,31 @@ impl Default for Player {
         }
     }
 }
+
+// todo
+// #[derive(Bundle)]
+// pub struct PlayerBundle(SpriteBundle, Player);
+//
+// impl PlayerBundle {
+//     pub fn new(materials: Res<Materials>) -> (PlayerBundle, MaterialMesh2dBundle) {
+//         (
+//             PlayerBundle(
+//                 SpriteBundle {
+//                     transform: Transform::from_translation(PLAYER_SPAWN_POS),
+//                     sprite: Sprite {
+//                         color: Color::WHITE,
+//                         custom_size: Some(Vec2::new(PLAYER_SIZE, PLAYER_SIZE)),
+//                         ..Default::default()
+//                     },
+//                     ..Default::default()
+//                 },
+//                 Player::default(),
+//             ),
+//             MaterialMesh2dBundle {
+//                 mesh: Mesh2dHandle(materials.player_catching_radius_mesh),
+//                 material: materials.player_catching_radius_color,
+//                 ..Default::default()
+//             },
+//         )
+//     }
+// }

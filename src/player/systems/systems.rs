@@ -1,6 +1,9 @@
 use crate::{
     constants::*,
-    enemy::{Catchable, Enemy},
+    enemy::{
+        systems::{Catchable, EnemyKilled},
+        Enemy,
+    },
     player::Player,
 };
 use bevy::{
@@ -35,6 +38,7 @@ pub fn try_to_kill_enemy(
     mut catched_en_q: Query<(Entity, &Transform, &Enemy), With<Catchable>>,
     mut player_q: Query<&mut Transform, (With<Player>, Without<Enemy>)>,
     mut commands: Commands,
+    mut ev_enemy_kill: EventWriter<EnemyKilled>,
     input: Res<ButtonInput<KeyCode>>,
 ) {
     let mut p_pos = player_q.get_single_mut().unwrap();
@@ -43,26 +47,8 @@ pub fn try_to_kill_enemy(
         // if catched, teleport to the enemy and kill it
         if input.just_pressed(e_catched.super_power.get_keycode()) {
             p_pos.translation = e_pos.translation;
-            println!("Anim To Spawn: {:?}", e_pos.translation);
 
-            commands.entity(e_ent).despawn_recursive();
-
-            // let layout = TextureAtlasLayout::from_grid(UVec2::splat(512), 8, 8, None, None);
-            // let texture = asset_server.load(EXPLOSION_SPRITESHEET);
-            // let atlas = texture_atlas_layouts.add(layout);
-            //
-            // commands.spawn((
-            //     SpriteBundle {
-            //         transform: e_pos.clone(),
-            //         texture: texture.clone(),
-            //         ..Default::default()
-            //     },
-            //     TextureAtlas {
-            //         layout: atlas,
-            //         index: 1,
-            //     },
-            //     AnimConfig::new(1, 64, 10),
-            // ));
+            ev_enemy_kill.send(EnemyKilled(e_ent));
         }
     }
 }
@@ -74,7 +60,7 @@ pub fn move_player(
 ) {
     let (mut p_pos, p_settings) = player_q.get_single_mut().unwrap();
 
-    // move player temp
+    // move player
     if input.pressed(p_settings.up_key) {
         p_pos.translation.y += PLAYER_SPEED * time.delta_seconds();
     }
