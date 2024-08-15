@@ -48,6 +48,8 @@ pub fn try_to_kill_enemy(
             p_pos.translation = e_pos.translation;
 
             ev_enemy_kill.send(EnemyKilled(e_ent));
+
+            break;
         }
     }
 }

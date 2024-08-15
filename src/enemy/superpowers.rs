@@ -1,15 +1,29 @@
+use core::fmt::Display;
+
 use crate::constants::*;
 use bevy::prelude::*;
 use rand::Rng;
-use strum::EnumCount;
+use strum::{EnumCount, EnumIter};
 
-#[derive(Clone, Debug, PartialEq, Eq, EnumCount)]
+#[derive(Clone, Debug, PartialEq, Eq, EnumCount, EnumIter)]
 pub enum SuperPower {
     Boost,
     Jump,
     CatchRad,
     Boom,
     Poop,
+}
+
+impl Display for SuperPower {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            SuperPower::Boost => write!(f, "Boost"),
+            SuperPower::Jump => write!(f, "Jump"),
+            SuperPower::CatchRad => write!(f, "CatchRad"),
+            SuperPower::Boom => write!(f, "Boom"),
+            SuperPower::Poop => write!(f, "Poop"),
+        }
+    }
 }
 
 impl SuperPower {
