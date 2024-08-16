@@ -25,7 +25,6 @@ pub fn on_player_upgrades(
 
         match ev.0 {
             SuperPower::Boost => player.speed_up(),
-            SuperPower::Jump => todo!(),
             SuperPower::CatchRad => {
                 let catch_rad = catch_rad_q.get_single_mut().unwrap();
                 player.catch_rad_up();
@@ -38,8 +37,9 @@ pub fn on_player_upgrades(
                     ..Default::default()
                 });
             }
-            SuperPower::Boom => todo!(),
-            SuperPower::Poop => todo!(),
+            SuperPower::Jump => println!("Jump Buff"),
+            SuperPower::Boom => println!("Boom Buff"),
+            SuperPower::Poop => println!("Poop Buff"),
         }
     }
 }
