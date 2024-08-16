@@ -4,7 +4,7 @@ use crate::{
         systems::{Catchable, EnemyKilled},
         Enemy,
     },
-    player::Player,
+    player::{player::CatchingRadius, Player},
 };
 use bevy::{
     prelude::*,
@@ -14,21 +14,25 @@ use bevy::{
 pub fn check_collision_with_enemy(
     mut not_catched_en_q: Query<(Entity, &Transform), (With<Enemy>, Without<Catchable>)>,
     mut catched_en_q: Query<(Entity, &Transform), (With<Enemy>, With<Catchable>)>,
-    player_q: Query<&Transform, (With<Player>, Without<Enemy>)>,
+    player_q: Query<(&Transform, &Player), Without<Enemy>>,
     mut commands: Commands,
 ) {
-    let p_pos = player_q.get_single().unwrap();
+    let (p_pos, player) = player_q.get_single().unwrap();
 
     // if in the catching range, add catchable component
     for (e_ent, e_pos) in &mut not_catched_en_q {
-        if p_pos.translation.distance(e_pos.translation) < CATCH_RAD + ENEMY_SIZE / 2. {
+        if p_pos.translation.distance(e_pos.translation)
+            < CATCH_RAD * player.catching_radius_multiplier + ENEMY_SIZE / 2.
+        {
             commands.entity(e_ent).insert(Catchable);
         }
     }
 
     for (e_ent, e_pos) in &mut catched_en_q {
         // if not in the range, not catchable more.
-        if p_pos.translation.distance(e_pos.translation) > CATCH_RAD + ENEMY_SIZE / 2. {
+        if p_pos.translation.distance(e_pos.translation)
+            > CATCH_RAD * player.catching_radius_multiplier + ENEMY_SIZE / 2.
+        {
             commands.entity(e_ent).remove::<Catchable>();
         }
     }
@@ -63,16 +67,16 @@ pub fn move_player(
 
     // move player
     if input.pressed(p_settings.up_key) {
-        p_pos.translation.y += PLAYER_SPEED * time.delta_seconds();
+        p_pos.translation.y += PLAYER_SPEED * p_settings.speed_multiplier * time.delta_seconds();
     }
     if input.pressed(p_settings.down_key) {
-        p_pos.translation.y -= PLAYER_SPEED * time.delta_seconds();
+        p_pos.translation.y -= PLAYER_SPEED * p_settings.speed_multiplier * time.delta_seconds();
     }
     if input.pressed(p_settings.left_key) {
-        p_pos.translation.x -= PLAYER_SPEED * time.delta_seconds();
+        p_pos.translation.x -= PLAYER_SPEED * p_settings.speed_multiplier * time.delta_seconds();
     }
     if input.pressed(p_settings.right_key) {
-        p_pos.translation.x += PLAYER_SPEED * time.delta_seconds();
+        p_pos.translation.x += PLAYER_SPEED * p_settings.speed_multiplier * time.delta_seconds();
     }
 }
 
@@ -95,10 +99,13 @@ pub fn spawn_player(
             },
         ))
         .with_children(|parent| {
-            parent.spawn((MaterialMesh2dBundle {
-                mesh: Mesh2dHandle(meshes.add(Annulus::new(CATCH_RAD - 1., CATCH_RAD))),
-                material: material.add(Color::hsl(1., 92., 79.)),
-                ..Default::default()
-            },));
+            parent.spawn((
+                MaterialMesh2dBundle {
+                    mesh: Mesh2dHandle(meshes.add(Annulus::new(CATCH_RAD - 1., CATCH_RAD))),
+                    material: material.add(Color::hsl(1., 92., 79.)),
+                    ..Default::default()
+                },
+                CatchingRadius,
+            ));
         });
 }

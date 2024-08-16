@@ -14,13 +14,17 @@ use camera::spawn_camera;
 use enemy::systems::{
     on_add_cathchable, on_enemy_kill, on_remove_cathchable, spawn_enemies, EnemyKilled,
 };
-use player::systems::{check_collision_with_enemy, move_player, spawn_player, try_to_kill_enemy};
+use player::systems::{
+    check_collision_with_enemy, move_player, on_player_upgrades, spawn_player, try_to_kill_enemy,
+    PlayerUpgrade,
+};
 use ui::spawn_info_window;
 
 fn main() {
     let mut app = App::new();
     app.add_plugins((DefaultPlugins, EguiPlugin));
     app.add_event::<EnemyKilled>();
+    app.add_event::<PlayerUpgrade>();
     app.init_resource::<Materials>();
 
     app.add_systems(
@@ -34,7 +38,7 @@ fn main() {
         Update,
         (check_collision_with_enemy, try_to_kill_enemy, move_player),
     );
-    app.add_systems(Update, on_enemy_kill);
+    app.add_systems(Update, (on_enemy_kill, on_player_upgrades));
 
     app.observe(on_add_cathchable);
     app.observe(on_remove_cathchable);

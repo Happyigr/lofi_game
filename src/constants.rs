@@ -16,6 +16,9 @@ pub const PLAYER_DOWN: KeyCode = KeyCode::ArrowDown;
 pub const PLAYER_LEFT: KeyCode = KeyCode::ArrowLeft;
 pub const PLAYER_RIGHT: KeyCode = KeyCode::ArrowRight;
 
+pub const BOOST_MULTIPLIER_DELTA: f32 = 0.5;
+pub const CATCHRAD_MULTIPLIER_DELTA: f32 = 0.5;
+
 pub const BOOST_ACTIVATOR: KeyCode = KeyCode::Digit1;
 pub const JUMP_ACTIVATOR: KeyCode = KeyCode::Digit2;
 pub const CATCHRAD_ACTIVATOR: KeyCode = KeyCode::Digit3;

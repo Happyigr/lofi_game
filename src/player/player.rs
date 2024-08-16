@@ -2,11 +2,25 @@ use crate::constants::*;
 use bevy::prelude::*;
 
 #[derive(Component)]
+pub struct CatchingRadius;
+
+#[derive(Component)]
 pub struct Player {
     pub up_key: KeyCode,
     pub down_key: KeyCode,
     pub right_key: KeyCode,
     pub left_key: KeyCode,
+    pub speed_multiplier: f32,
+    pub catching_radius_multiplier: f32,
+}
+
+impl Player {
+    pub fn speed_up(&mut self) {
+        self.speed_multiplier += BOOST_MULTIPLIER_DELTA;
+    }
+    pub fn catch_rad_up(&mut self) {
+        self.catching_radius_multiplier += CATCHRAD_MULTIPLIER_DELTA;
+    }
 }
 
 impl Default for Player {
@@ -16,6 +30,8 @@ impl Default for Player {
             down_key: PLAYER_DOWN,
             right_key: PLAYER_RIGHT,
             left_key: PLAYER_LEFT,
+            speed_multiplier: 1.0,
+            catching_radius_multiplier: 1.0,
         }
     }
 }
