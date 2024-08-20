@@ -29,16 +29,17 @@ pub fn on_remove_cathchable(
     sprite.color = enemy.super_power.get_enemy_color();
 }
 
-// dont working
 pub fn on_enemy_kill(
     mut ev_enemy_killed: EventReader<EnemyKilled>,
     mut ev_player_upgrade: EventWriter<PlayerUpgrade>,
     materials: Res<Materials>,
-    en_q: Query<(&Transform, &Enemy)>,
+    en_q: Query<(&Transform, &Enemy), Without<Player>>,
+    mut player_q: Query<&mut Transform, With<Player>>,
     mut commands: Commands,
 ) {
     for ev in ev_enemy_killed.read() {
         let (e_pos, enemy) = en_q.get(ev.0).unwrap();
+        let mut p_pos = player_q.get_single_mut().unwrap();
 
         // spawning animation
         commands.spawn((
@@ -56,6 +57,9 @@ pub fn on_enemy_kill(
 
         // activating superpower
         ev_player_upgrade.send(PlayerUpgrade(enemy.super_power.clone()));
+
+        // moving Player
+        p_pos.translation = e_pos.translation;
 
         // despawn enemy
         commands.entity(ev.0).despawn_recursive();

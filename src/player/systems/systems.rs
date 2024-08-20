@@ -9,7 +9,7 @@ use crate::{
 use bevy::{
     prelude::*,
     sprite::{MaterialMesh2dBundle, Mesh2dHandle},
-    utils::HashSet,
+    utils::HashMap,
 };
 
 pub fn check_collision_with_enemy(
@@ -41,26 +41,38 @@ pub fn check_collision_with_enemy(
 
 pub fn try_to_kill_enemy(
     mut catched_en_q: Query<(Entity, &Transform, &Enemy), With<Catchable>>,
-    mut player_q: Query<&mut Transform, (With<Player>, Without<Enemy>)>,
+    player_q: Query<&Transform, (With<Player>, Without<Enemy>)>,
     mut ev_enemy_kill: EventWriter<EnemyKilled>,
     input: Res<ButtonInput<KeyCode>>,
 ) {
-    let mut p_pos = player_q.get_single_mut().unwrap();
-    let mut pressed_keycodes = HashSet::new();
+    let p_pos = player_q.get_single().unwrap();
+    let mut enemy_to_kill: HashMap<KeyCode, (f32, Entity)> = HashMap::new();
 
     for (e_ent, e_pos, e_catched) in &mut catched_en_q {
-        // if catched, teleport to the enemy and kill it
-        if input.just_pressed(e_catched.super_power.get_keycode())
-            && pressed_keycodes
-                .get(&e_catched.super_power.get_keycode())
-                .is_none()
-        {
-            pressed_keycodes.insert(e_catched.super_power.get_keycode());
-            p_pos.translation = e_pos.translation;
+        let tapped_keycode = e_catched.super_power.get_keycode();
+        // if catched, and the same type of the enemy wasnt catched, teleport to the enemy and kill it
 
-            ev_enemy_kill.send(EnemyKilled(e_ent));
+        if input.just_pressed(tapped_keycode) {
+            if let Some((dist, _)) = enemy_to_kill.get_mut(&tapped_keycode) {
+                if *dist > p_pos.translation.distance(e_pos.translation) {
+                    enemy_to_kill.insert(
+                        tapped_keycode,
+                        (p_pos.translation.distance(e_pos.translation), e_ent),
+                    );
+                }
+            } else {
+                enemy_to_kill.insert(
+                    tapped_keycode,
+                    (p_pos.translation.distance(e_pos.translation), e_ent),
+                );
+            }
         }
     }
+
+    // killing each tapped enemy, sorted by the distance to the player
+    enemy_to_kill.into_iter().for_each(|(_, (_, e_ent))| {
+        ev_enemy_kill.send(EnemyKilled(e_ent));
+    });
 }
 
 pub fn move_player(
