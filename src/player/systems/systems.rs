@@ -9,6 +9,7 @@ use crate::{
 use bevy::{
     prelude::*,
     sprite::{MaterialMesh2dBundle, Mesh2dHandle},
+    utils::HashSet,
 };
 
 pub fn check_collision_with_enemy(
@@ -45,15 +46,19 @@ pub fn try_to_kill_enemy(
     input: Res<ButtonInput<KeyCode>>,
 ) {
     let mut p_pos = player_q.get_single_mut().unwrap();
+    let mut pressed_keycodes = HashSet::new();
 
     for (e_ent, e_pos, e_catched) in &mut catched_en_q {
         // if catched, teleport to the enemy and kill it
-        if input.just_pressed(e_catched.super_power.get_keycode()) {
+        if input.just_pressed(e_catched.super_power.get_keycode())
+            && pressed_keycodes
+                .get(&e_catched.super_power.get_keycode())
+                .is_none()
+        {
+            pressed_keycodes.insert(e_catched.super_power.get_keycode());
             p_pos.translation = e_pos.translation;
 
             ev_enemy_kill.send(EnemyKilled(e_ent));
-
-            break;
         }
     }
 }
