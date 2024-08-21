@@ -4,11 +4,13 @@ mod constants;
 mod enemy;
 mod player;
 mod resources;
+mod sounds;
 mod ui;
 
 use animation::execute_animations;
 use bevy::prelude::*;
 use bevy_egui::EguiPlugin;
+use bevy_kira_audio::AudioPlugin;
 use camera::spawn_camera;
 use enemy::systems::{
     on_add_cathchable, on_enemy_kill, on_remove_cathchable, spawn_enemies, EnemyKilled,
@@ -18,15 +20,17 @@ use player::systems::{
     PlayerUpgrade,
 };
 use resources::{init_materials, Game, Materials};
+use sounds::spawn_heartbeat_bg_sound;
 use ui::{change_score, spawn_info_window, spawn_score};
 
 fn main() {
     let mut app = App::new();
-    app.add_plugins((DefaultPlugins, EguiPlugin));
+    app.add_plugins((DefaultPlugins, EguiPlugin, AudioPlugin));
     app.insert_resource(Game::default());
     app.add_event::<EnemyKilled>();
     app.add_event::<PlayerUpgrade>();
     app.init_resource::<Materials>();
+    app.add_systems(PreStartup, init_materials);
 
     app.add_systems(
         Startup,
@@ -34,8 +38,8 @@ fn main() {
             spawn_camera,
             spawn_player,
             spawn_enemies,
-            init_materials,
             spawn_score,
+            spawn_heartbeat_bg_sound,
         ),
     );
 

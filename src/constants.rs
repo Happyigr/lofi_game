@@ -1,6 +1,7 @@
 use bevy::{color::Color, math::Vec3, prelude::KeyCode};
 
-pub const EXPLOSION_SPRITESHEET: &str = "explosion_4.png";
+pub const EXPLOSION_SPRITESHEET: &str = "animations/explosion_4.png";
+pub const HEARTBEAT_SOUND: &str = "sounds/heartbeat.ogg";
 
 pub const PLAYER_SIZE: f32 = 32.0;
 pub const PLAYER_SPEED: f32 = 200.0;
