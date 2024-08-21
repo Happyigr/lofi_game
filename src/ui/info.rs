@@ -1,12 +1,15 @@
-use crate::enemy::SuperPower;
-use bevy::color::ColorToPacked;
+use crate::{
+    enemy::SuperPower,
+    resources::{Game, MySettings},
+};
+use bevy::{color::ColorToPacked, prelude::ResMut};
 use bevy_egui::{
     egui::{self, Color32},
     EguiContexts,
 };
 use strum::IntoEnumIterator;
 
-pub fn spawn_info_window(mut contexts: EguiContexts) {
+pub fn spawn_info_window(mut contexts: EguiContexts, mut settings: ResMut<MySettings>) {
     egui::Window::new("Info").show(contexts.ctx_mut(), |ui| {
         ui.with_layout(
             egui::Layout {
@@ -35,6 +38,20 @@ pub fn spawn_info_window(mut contexts: EguiContexts) {
                         ui.label(format!("{}", superpower.get_keycode_str()));
                     });
                 }
+
+                ui.horizontal_top(|ui| {
+                    ui.add(
+                        egui::Slider::new(&mut settings.boom_anim_fps, 10..=60)
+                            .text("Boom anim FPS"),
+                    );
+                });
+                ui.horizontal_top(|ui| {
+                    ui.checkbox(&mut settings.audio_on, "Audio");
+                    ui.add(
+                        egui::Slider::new(&mut settings.heartbeat_speed, 0.1..=5.)
+                            .text("timer duration"),
+                    );
+                });
             },
         );
     });

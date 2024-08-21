@@ -1,3 +1,3 @@
-mod heartbeat;
+mod observers;
 
-pub use heartbeat::spawn_heartbeat_bg_sound;
+pub use observers::change_audio;

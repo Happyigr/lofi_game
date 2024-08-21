@@ -4,7 +4,7 @@ use crate::{
     animation::AnimConfig,
     enemy::{Enemy, EnemyBundle},
     player::{systems::PlayerUpgrade, Player},
-    resources::{Game, Materials},
+    resources::{Game, Materials, MySettings},
 };
 
 #[derive(Event)]
@@ -37,6 +37,7 @@ pub fn on_enemy_kill(
     mut player_q: Query<&mut Transform, With<Player>>,
     mut commands: Commands,
     mut game: ResMut<Game>,
+    settings: Res<MySettings>,
 ) {
     for ev in ev_enemy_killed.read() {
         let (e_pos, enemy) = en_q.get(ev.0).unwrap();
@@ -53,7 +54,7 @@ pub fn on_enemy_kill(
                 layout: materials.boom_animation_layout.clone(),
                 index: 1,
             },
-            AnimConfig::new(1, 63, game.settings.boom_anim_fps),
+            AnimConfig::new(1, 63, settings.boom_anim_fps),
         ));
 
         // activating superpower

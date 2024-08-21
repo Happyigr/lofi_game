@@ -19,8 +19,8 @@ use player::systems::{
     check_collision_with_enemy, move_player, on_player_upgrades, spawn_player, try_to_kill_enemy,
     PlayerUpgrade,
 };
-use resources::{init_materials, Game, Materials};
-use sounds::spawn_heartbeat_bg_sound;
+use resources::{init_materials, Game, Materials, MySettings};
+use sounds::change_audio;
 use ui::{change_score, spawn_info_window, spawn_score};
 
 fn main() {
@@ -30,17 +30,17 @@ fn main() {
     app.add_event::<EnemyKilled>();
     app.add_event::<PlayerUpgrade>();
     app.init_resource::<Materials>();
+    app.init_resource::<MySettings>();
     app.add_systems(PreStartup, init_materials);
 
     app.add_systems(
         Startup,
-        (
-            spawn_camera,
-            spawn_player,
-            spawn_enemies,
-            spawn_score,
-            spawn_heartbeat_bg_sound,
-        ),
+        (spawn_camera, spawn_player, spawn_enemies, spawn_score),
+    );
+
+    app.add_systems(
+        Update,
+        (change_audio).run_if(resource_changed::<MySettings>),
     );
 
     app.add_systems(Update, execute_animations);

@@ -1,17 +1,18 @@
 use crate::constants::*;
 use bevy::prelude::*;
 
-pub struct Settings {
+#[derive(Resource)]
+pub struct MySettings {
     pub heartbeat_speed: f64,
-    pub audio: bool,
+    pub audio_on: bool,
     pub boom_anim_fps: u8,
 }
 
-impl Default for Settings {
+impl Default for MySettings {
     fn default() -> Self {
         Self {
-            heartbeat_speed: 4.0,
-            audio: true,
+            heartbeat_speed: 1.0,
+            audio_on: true,
             boom_anim_fps: 60,
         }
     }
@@ -20,7 +21,6 @@ impl Default for Settings {
 #[derive(Resource, Default)]
 pub struct Game {
     pub score: usize,
-    pub settings: Settings,
 }
 
 #[derive(Resource, Default)]

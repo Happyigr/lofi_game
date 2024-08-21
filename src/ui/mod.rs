@@ -1,5 +1,6 @@
 mod info;
 mod score;
+mod settings;
 
 pub use info::spawn_info_window;
 
