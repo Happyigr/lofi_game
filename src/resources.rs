@@ -3,7 +3,7 @@ use bevy::prelude::*;
 
 #[derive(Resource)]
 pub struct MySettings {
-    pub heartbeat_speed: f64,
+    pub bg_sound_volume: f64,
     pub audio_on: bool,
     pub boom_anim_fps: u8,
 }
@@ -11,7 +11,7 @@ pub struct MySettings {
 impl Default for MySettings {
     fn default() -> Self {
         Self {
-            heartbeat_speed: 1.0,
+            bg_sound_volume: 1.0,
             audio_on: true,
             boom_anim_fps: 60,
         }
@@ -23,13 +23,28 @@ pub struct Game {
     pub score: usize,
 }
 
+#[derive(Default)]
+pub struct Xylophone {
+    pub sweep: Handle<bevy_kira_audio::AudioSource>,
+    pub c: Handle<bevy_kira_audio::AudioSource>,
+    pub d: Handle<bevy_kira_audio::AudioSource>,
+    pub e: Handle<bevy_kira_audio::AudioSource>,
+    pub f: Handle<bevy_kira_audio::AudioSource>,
+    pub g: Handle<bevy_kira_audio::AudioSource>,
+    pub a: Handle<bevy_kira_audio::AudioSource>,
+    pub b: Handle<bevy_kira_audio::AudioSource>,
+    pub gm: Handle<bevy_kira_audio::AudioSource>,
+}
+
 #[derive(Resource, Default)]
 pub struct Materials {
     pub boom_animation_texture: Handle<Image>,
     pub boom_animation_layout: Handle<TextureAtlasLayout>,
     pub player_catching_radius_mesh: Handle<Mesh>,
     pub player_catching_radius_color: Handle<ColorMaterial>,
-    pub heartbeat_bg_sound: Handle<bevy_kira_audio::AudioSource>,
+    pub bg_sound: Handle<bevy_kira_audio::AudioSource>,
+    pub boom_sound: Handle<bevy_kira_audio::AudioSource>,
+    pub xylophone: Xylophone,
 }
 
 pub fn init_materials(
@@ -43,13 +58,28 @@ pub fn init_materials(
     let boom_animation_layout = texture_atlas_layouts.add(layout);
     let boom_animation_texture = asset_server.load(EXPLOSION_SPRITESHEET);
 
-    let heartbeat_bg_sound = asset_server.load(HEARTBEAT_SOUND);
+    let bg_sound = asset_server.load(BG_MUSIC);
+    let boom_sound = asset_server.load(BOOM_SOUND);
     let player_catching_radius_mesh = meshes.add(Annulus::new(CATCH_RAD - 1., CATCH_RAD));
     let player_catching_radius_color = material.add(Color::hsl(1., 92., 79.));
+
+    let xylophone = Xylophone {
+        sweep: asset_server.load(XYLOPHONE_SWEEP),
+        c: asset_server.load(XYLOPHONE_C),
+        d: asset_server.load(XYLOPHONE_D),
+        e: asset_server.load(XYLOPHONE_E),
+        f: asset_server.load(XYLOPHONE_F),
+        g: asset_server.load(XYLOPHONE_G),
+        a: asset_server.load(XYLOPHONE_A),
+        b: asset_server.load(XYLOPHONE_B),
+        gm: asset_server.load(XYLOPHONE_GM),
+    };
 
     materials.boom_animation_layout = boom_animation_layout;
     materials.boom_animation_texture = boom_animation_texture;
     materials.player_catching_radius_mesh = player_catching_radius_mesh;
     materials.player_catching_radius_color = player_catching_radius_color;
-    materials.heartbeat_bg_sound = heartbeat_bg_sound;
+    materials.bg_sound = bg_sound;
+    materials.boom_sound = boom_sound;
+    materials.xylophone = xylophone;
 }

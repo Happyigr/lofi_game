@@ -1,7 +1,19 @@
 use bevy::{color::Color, math::Vec3, prelude::KeyCode};
 
 pub const EXPLOSION_SPRITESHEET: &str = "animations/explosion_4.png";
+pub const BG_MUSIC: &str = "sounds/rain.ogg";
+pub const BOOM_SOUND: &str = "sounds/synt_explosion.ogg";
 pub const HEARTBEAT_SOUND: &str = "sounds/heartbeat.ogg";
+
+pub const XYLOPHONE_SWEEP: &str = "sounds/xylophone/xylophone_sweep.ogg";
+pub const XYLOPHONE_A: &str = "sounds/xylophone/xylophone_a.ogg";
+pub const XYLOPHONE_B: &str = "sounds/xylophone/xylophone_b.ogg";
+pub const XYLOPHONE_C: &str = "sounds/xylophone/xylophone_c.ogg";
+pub const XYLOPHONE_D: &str = "sounds/xylophone/xylophone_d.ogg";
+pub const XYLOPHONE_E: &str = "sounds/xylophone/xylophone_e.ogg";
+pub const XYLOPHONE_F: &str = "sounds/xylophone/xylophone_f.ogg";
+pub const XYLOPHONE_G: &str = "sounds/xylophone/xylophone_g.ogg";
+pub const XYLOPHONE_GM: &str = "sounds/xylophone/xylophone_gm.ogg";
 
 pub const PLAYER_SIZE: f32 = 32.0;
 pub const PLAYER_SPEED: f32 = 200.0;

@@ -48,8 +48,8 @@ pub fn spawn_info_window(mut contexts: EguiContexts, mut settings: ResMut<MySett
                 ui.horizontal_top(|ui| {
                     ui.checkbox(&mut settings.audio_on, "Audio");
                     ui.add(
-                        egui::Slider::new(&mut settings.heartbeat_speed, 0.1..=5.)
-                            .text("timer duration"),
+                        egui::Slider::new(&mut settings.bg_sound_volume, 0.0..=1.)
+                            .text("Rain Volume"),
                     );
                 });
             },

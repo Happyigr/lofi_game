@@ -3,15 +3,16 @@ use bevy_kira_audio::prelude::*;
 
 use crate::resources::{Materials, MySettings};
 
+pub fn start_audio(materials: Res<Materials>, audio: Res<Audio>) {
+    audio.play(materials.bg_sound.clone()).looped();
+}
+
 // this system will change the sound playing if the settings was changed
-pub fn change_audio(materials: Res<Materials>, settings: ResMut<MySettings>, audio: Res<Audio>) {
+pub fn change_audio(settings: ResMut<MySettings>, audio: Res<Audio>) {
     if settings.audio_on {
-        if audio.is_playing_sound() == false {
-            audio.play(materials.heartbeat_bg_sound.clone()).looped();
-        }
         audio.resume();
-        audio.set_playback_rate(settings.heartbeat_speed);
+        audio.set_volume(settings.bg_sound_volume);
     } else {
-        audio.stop();
+        audio.pause();
     }
 }

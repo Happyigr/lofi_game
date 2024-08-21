@@ -1,4 +1,5 @@
 use bevy::prelude::*;
+use bevy_kira_audio::prelude::*;
 
 use crate::{
     animation::AnimConfig,
@@ -37,6 +38,7 @@ pub fn on_enemy_kill(
     mut player_q: Query<&mut Transform, With<Player>>,
     mut commands: Commands,
     mut game: ResMut<Game>,
+    audio: Res<Audio>,
     settings: Res<MySettings>,
 ) {
     for ev in ev_enemy_killed.read() {
@@ -56,6 +58,9 @@ pub fn on_enemy_kill(
             },
             AnimConfig::new(1, 63, settings.boom_anim_fps),
         ));
+
+        // playing sound
+        audio.play(materials.boom_sound.clone());
 
         // activating superpower
         ev_player_upgrade.send(PlayerUpgrade(enemy.super_power.clone()));

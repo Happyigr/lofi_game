@@ -20,7 +20,7 @@ use player::systems::{
     PlayerUpgrade,
 };
 use resources::{init_materials, Game, Materials, MySettings};
-use sounds::change_audio;
+use sounds::{change_audio, start_audio};
 use ui::{change_score, spawn_info_window, spawn_score};
 
 fn main() {
@@ -33,6 +33,7 @@ fn main() {
     app.init_resource::<MySettings>();
     app.add_systems(PreStartup, init_materials);
 
+    app.add_systems(Startup, start_audio);
     app.add_systems(
         Startup,
         (spawn_camera, spawn_player, spawn_enemies, spawn_score),
