@@ -27,3 +27,8 @@ pub fn init_materials(
     materials.player_catching_radius_mesh = player_catching_radius_mesh;
     materials.player_catching_radius_color = player_catching_radius_color;
 }
+
+#[derive(Resource, Default)]
+pub struct Game {
+    pub score: usize,
+}

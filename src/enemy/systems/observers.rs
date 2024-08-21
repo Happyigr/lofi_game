@@ -2,9 +2,9 @@ use bevy::prelude::*;
 
 use crate::{
     animation::AnimConfig,
-    assets::Materials,
     enemy::{Enemy, EnemyBundle},
     player::{systems::PlayerUpgrade, Player},
+    resources::{Game, Materials},
 };
 
 #[derive(Event)]
@@ -36,6 +36,7 @@ pub fn on_enemy_kill(
     en_q: Query<(&Transform, &Enemy), Without<Player>>,
     mut player_q: Query<&mut Transform, With<Player>>,
     mut commands: Commands,
+    mut game: ResMut<Game>,
 ) {
     for ev in ev_enemy_killed.read() {
         let (e_pos, enemy) = en_q.get(ev.0).unwrap();
@@ -60,6 +61,9 @@ pub fn on_enemy_kill(
 
         // moving Player
         p_pos.translation = e_pos.translation;
+
+        // incriasing score
+        game.score += 1;
 
         // despawn enemy
         commands.entity(ev.0).despawn_recursive();
