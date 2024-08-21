@@ -4,13 +4,15 @@ use bevy::prelude::*;
 pub struct Settings {
     pub heartbeat_speed: f64,
     pub audio: bool,
+    pub boom_anim_fps: u8,
 }
 
 impl Default for Settings {
     fn default() -> Self {
         Self {
-            heartbeat_speed: 2.0,
+            heartbeat_speed: 4.0,
             audio: true,
+            boom_anim_fps: 60,
         }
     }
 }

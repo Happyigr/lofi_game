@@ -53,7 +53,7 @@ pub fn on_enemy_kill(
                 layout: materials.boom_animation_layout.clone(),
                 index: 1,
             },
-            AnimConfig::new(1, 63, 40),
+            AnimConfig::new(1, 63, game.settings.boom_anim_fps),
         ));
 
         // activating superpower
