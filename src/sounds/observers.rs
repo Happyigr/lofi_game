@@ -3,7 +3,7 @@ use bevy_kira_audio::prelude::*;
 
 use crate::resources::{Materials, MySettings};
 
-pub fn start_audio(materials: Res<Materials>, audio: Res<Audio>) {
+pub fn start_bg_audio(materials: Res<Materials>, audio: Res<Audio>) {
     audio.play(materials.bg_sound.clone()).looped();
 }
 

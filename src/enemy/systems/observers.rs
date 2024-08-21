@@ -60,7 +60,7 @@ pub fn on_enemy_kill(
         ));
 
         // playing sound
-        audio.play(materials.boom_sound.clone());
+        audio.play(enemy.super_power.get_sound(&materials));
 
         // activating superpower
         ev_player_upgrade.send(PlayerUpgrade(enemy.super_power.clone()));

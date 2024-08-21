@@ -1,6 +1,13 @@
 use crate::constants::*;
 use bevy::prelude::*;
 
+#[derive(States, Copy, Clone, Eq, PartialEq, Debug, Default, Hash)]
+pub enum GameState {
+    Menu,
+    #[default]
+    Game,
+}
+
 #[derive(Resource)]
 pub struct MySettings {
     pub bg_sound_volume: f64,

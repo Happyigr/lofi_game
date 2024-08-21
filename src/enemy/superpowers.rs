@@ -1,7 +1,8 @@
 use core::fmt::Display;
 
-use crate::constants::*;
+use crate::{constants::*, resources::Materials};
 use bevy::prelude::*;
+use bevy_kira_audio::AudioSource;
 use rand::Rng;
 use strum::{EnumCount, EnumIter};
 
@@ -67,6 +68,16 @@ impl SuperPower {
             SuperPower::CatchRad => "3",
             SuperPower::Boom => "4",
             SuperPower::Poop => "5",
+        }
+    }
+
+    pub fn get_sound(&self, materials: &Materials) -> Handle<AudioSource> {
+        match self {
+            SuperPower::Boost => materials.xylophone.c.clone(),
+            SuperPower::Jump => materials.xylophone.d.clone(),
+            SuperPower::CatchRad => materials.xylophone.e.clone(),
+            SuperPower::Boom => materials.xylophone.f.clone(),
+            SuperPower::Poop => materials.xylophone.g.clone(),
         }
     }
 }
