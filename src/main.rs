@@ -39,6 +39,7 @@ fn main() {
         Update,
         (change_audio).run_if(resource_changed::<MySettings>),
     );
+
     app.add_systems(Update, spawn_info_window);
 
     // app.add_systems(OnEnter(GameState::Menu), todo!());

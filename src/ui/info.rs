@@ -49,7 +49,7 @@ pub fn spawn_info_window(mut contexts: EguiContexts, mut settings: ResMut<MySett
                     ui.checkbox(&mut settings.audio_on, "Audio");
                     ui.add(
                         egui::Slider::new(&mut settings.bg_sound_volume, 0.0..=1.)
-                            .text("Rain Volume"),
+                            .text("Master Volume"),
                     );
                 });
             },

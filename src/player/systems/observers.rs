@@ -40,6 +40,7 @@ pub fn on_player_upgrades(
             SuperPower::Jump => println!("Jump Buff"),
             SuperPower::Boom => println!("Boom Buff"),
             SuperPower::Poop => println!("Poop Buff"),
+            _ => println!("Notes"),
         }
     }
 }

@@ -38,7 +38,17 @@ pub const CATCHRAD_ACTIVATOR: KeyCode = KeyCode::Digit3;
 pub const BOOM_ACTIVATOR: KeyCode = KeyCode::Digit4;
 pub const POOP_ACTIVATOR: KeyCode = KeyCode::Digit5;
 
+pub const C_ACTIVATOR: KeyCode = KeyCode::KeyC;
+pub const D_ACTIVATOR: KeyCode = KeyCode::KeyD;
+pub const E_ACTIVATOR: KeyCode = KeyCode::KeyE;
+pub const F_ACTIVATOR: KeyCode = KeyCode::KeyF;
+pub const G_ACTIVATOR: KeyCode = KeyCode::KeyG;
+pub const GM_ACTIVATOR: KeyCode = KeyCode::KeyM;
+pub const A_ACTIVATOR: KeyCode = KeyCode::KeyA;
+pub const B_ACTIVATOR: KeyCode = KeyCode::KeyB;
+
 pub const ENEMY_SIZE: f32 = 22.0;
+pub const NOTE_COLOR: Color = Color::linear_rgba(0., 0., 0., 1.);
 pub const ENEMY_COLOR_BOOST: Color = Color::linear_rgba(0.5, 0., 0., 1.);
 pub const ENEMY_COLOR_JUMP: Color = Color::linear_rgba(0., 0.5, 0., 1.);
 pub const ENEMY_COLOR_CATCHRAD: Color = Color::linear_rgba(0., 0., 0.5, 1.);

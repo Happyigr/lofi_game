@@ -51,6 +51,7 @@ pub struct Materials {
     pub player_catching_radius_color: Handle<ColorMaterial>,
     pub bg_sound: Handle<bevy_kira_audio::AudioSource>,
     pub boom_sound: Handle<bevy_kira_audio::AudioSource>,
+    pub heartbeat: Handle<bevy_kira_audio::AudioSource>,
     pub xylophone: Xylophone,
 }
 
@@ -82,6 +83,8 @@ pub fn init_materials(
         gm: asset_server.load(XYLOPHONE_GM),
     };
 
+    let heartbeat = asset_server.load(HEARTBEAT_SOUND);
+
     materials.boom_animation_layout = boom_animation_layout;
     materials.boom_animation_texture = boom_animation_texture;
     materials.player_catching_radius_mesh = player_catching_radius_mesh;
@@ -89,4 +92,5 @@ pub fn init_materials(
     materials.bg_sound = bg_sound;
     materials.boom_sound = boom_sound;
     materials.xylophone = xylophone;
+    materials.heartbeat = heartbeat;
 }
