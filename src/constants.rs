@@ -4,6 +4,10 @@ pub const EXPLOSION_SPRITESHEET: &str = "animations/explosion_4.png";
 pub const BG_MUSIC: &str = "sounds/rain.ogg";
 pub const BOOM_SOUND: &str = "sounds/synt_explosion.ogg";
 pub const HEARTBEAT_SOUND: &str = "sounds/heartbeat.ogg";
+pub const MENU_ICON: &str = "icon.png";
+
+pub const FONT: &str = "fonts/Montserrat-Regular.ttf";
+pub const FONT_BOLD: &str = "fonts/Montserrat-Bold.ttf";
 
 pub const XYLOPHONE_SWEEP: &str = "sounds/xylophone/xylophone_sweep.ogg";
 pub const XYLOPHONE_A: &str = "sounds/xylophone/xylophone_a.ogg";
@@ -54,3 +58,7 @@ pub const ENEMY_COLOR_JUMP: Color = Color::linear_rgba(0., 0.5, 0., 1.);
 pub const ENEMY_COLOR_CATCHRAD: Color = Color::linear_rgba(0., 0., 0.5, 1.);
 pub const ENEMY_COLOR_BOOM: Color = Color::linear_rgba(0.2, 0.2, 0.2, 1.);
 pub const ENEMY_COLOR_POOP: Color = Color::linear_rgba(0.8, 0.8, 0.4, 1.);
+
+pub const NORMAL_BUTTON_COLOR: Color = Color::linear_rgba(0.1, 0.1, 0.1, 1.);
+pub const HOVERED_BUTTON_COLOR: Color = Color::linear_rgba(0.1, 0.1, 0.1, 0.8);
+pub const PRESSED_BUTTON_COLOR: Color = Color::linear_rgba(0.1, 0.1, 0.1, 0.5);

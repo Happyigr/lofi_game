@@ -1,11 +1,13 @@
 use crate::constants::*;
 use bevy::prelude::*;
+use bevy_egui::{egui, EguiContexts};
 
 #[derive(States, Copy, Clone, Eq, PartialEq, Debug, Default, Hash)]
 pub enum GameState {
-    Menu,
     #[default]
+    Menu,
     Game,
+    WinScreen,
 }
 
 #[derive(Resource)]
@@ -53,6 +55,8 @@ pub struct Materials {
     pub boom_sound: Handle<bevy_kira_audio::AudioSource>,
     pub heartbeat: Handle<bevy_kira_audio::AudioSource>,
     pub xylophone: Xylophone,
+    pub font: Handle<Font>,
+    pub font_bold: Handle<Font>,
 }
 
 pub fn init_materials(
@@ -70,6 +74,9 @@ pub fn init_materials(
     let boom_sound = asset_server.load(BOOM_SOUND);
     let player_catching_radius_mesh = meshes.add(Annulus::new(CATCH_RAD - 1., CATCH_RAD));
     let player_catching_radius_color = material.add(Color::hsl(1., 92., 79.));
+
+    let font = asset_server.load(FONT);
+    let font_bold = asset_server.load(FONT_BOLD);
 
     let xylophone = Xylophone {
         sweep: asset_server.load(XYLOPHONE_SWEEP),
@@ -93,4 +100,6 @@ pub fn init_materials(
     materials.boom_sound = boom_sound;
     materials.xylophone = xylophone;
     materials.heartbeat = heartbeat;
+    materials.font = font;
+    materials.font_bold = font_bold;
 }

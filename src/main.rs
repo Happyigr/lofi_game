@@ -21,7 +21,7 @@ use player::systems::{
 };
 use resources::{init_materials, Game, GameState, Materials, MySettings};
 use sounds::{change_audio, start_bg_audio};
-use ui::{change_score, spawn_info_window, spawn_score};
+use ui::{change_score, spawn_info_window, spawn_menu, spawn_score};
 
 fn main() {
     let mut app = App::new();
@@ -41,6 +41,8 @@ fn main() {
     );
 
     app.add_systems(Update, spawn_info_window);
+
+    app.add_systems(Update, (spawn_menu).run_if(in_state(GameState::Menu)));
 
     // app.add_systems(OnEnter(GameState::Menu), todo!());
     app.add_systems(
