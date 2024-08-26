@@ -20,8 +20,9 @@ pub const XYLOPHONE_G: &str = "sounds/xylophone/xylophone_g.ogg";
 pub const XYLOPHONE_GM: &str = "sounds/xylophone/xylophone_gm.ogg";
 
 pub const PLAYER_SIZE: f32 = 32.0;
-pub const PLAYER_SPEED: f32 = 200.0;
+pub const PLAYER_SPEED: f32 = 0.0;
 pub const PLAYER_SPAWN_POS: Vec3 = Vec3::ZERO;
+pub const ENEMY_TO_PLAYER_DISTANCE: f32 = 10.;
 pub const CATCH_RAD: f32 = 100.;
 pub const MAP_H: f32 = 400.;
 pub const MAP_W: f32 = 700.;

@@ -66,7 +66,7 @@ pub fn on_enemy_kill(
         ev_player_upgrade.send(PlayerUpgrade(enemy.super_power.clone()));
 
         // moving Player
-        p_pos.translation = e_pos.translation;
+        // p_pos.translation = e_pos.translation;
 
         // incriasing score
         game.score += 1;
