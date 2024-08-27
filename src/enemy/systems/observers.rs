@@ -35,7 +35,7 @@ pub fn on_enemy_kill(
     mut ev_player_upgrade: EventWriter<PlayerUpgrade>,
     materials: Res<Materials>,
     en_q: Query<(&Transform, &Enemy), Without<Player>>,
-    mut player_q: Query<&mut Transform, With<Player>>,
+    mut player_q: Query<(&mut Transform, &Player)>,
     mut commands: Commands,
     mut game: ResMut<Game>,
     audio: Res<Audio>,
@@ -43,7 +43,7 @@ pub fn on_enemy_kill(
 ) {
     for ev in ev_enemy_killed.read() {
         let (e_pos, enemy) = en_q.get(ev.0).unwrap();
-        let mut p_pos = player_q.get_single_mut().unwrap();
+        let (mut p_pos, player) = player_q.get_single_mut().unwrap();
 
         // spawning animation
         commands.spawn((
@@ -75,7 +75,8 @@ pub fn on_enemy_kill(
         commands.entity(ev.0).despawn_recursive();
 
         // spawning new enemy
-        let (e_new, e_new_text) = EnemyBundle::new_random();
+        let (e_new, e_new_text) =
+            EnemyBundle::new_random_near_player(player.catching_radius_multiplier);
         commands.spawn(e_new).with_children(|parent| {
             parent.spawn(e_new_text);
         });
