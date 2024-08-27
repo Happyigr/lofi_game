@@ -8,6 +8,7 @@ use crate::{
 };
 use bevy::{
     prelude::*,
+    reflect::List,
     sprite::{MaterialMesh2dBundle, Mesh2dHandle},
     utils::HashMap,
 };
@@ -76,24 +77,61 @@ pub fn try_to_kill_enemy(
 }
 
 pub fn move_player(
-    mut player_q: Query<(&mut Transform, &Player)>,
-    time: Res<Time>,
-    input: Res<ButtonInput<KeyCode>>,
+    mut player_q: Query<(&mut Transform, &mut Player)>,
+    _time: Res<Time>,
+    _input: Res<ButtonInput<KeyCode>>,
 ) {
-    let (mut p_pos, p_settings) = player_q.get_single_mut().unwrap();
+    let (mut p_pos, mut p_settings) = player_q.get_single_mut().unwrap();
 
-    // move player
-    if input.pressed(p_settings.up_key) {
-        p_pos.translation.y += PLAYER_SPEED * p_settings.speed_multiplier * time.delta_seconds();
+    // move player keyboard
+    // if input.pressed(p_settings.up_key) {
+    //     p_pos.translation.y += PLAYER_SPEED * p_settings.speed_multiplier * time.delta_seconds();
+    // }
+    // if input.pressed(p_settings.down_key) {
+    //     p_pos.translation.y -= PLAYER_SPEED * p_settings.speed_multiplier * time.delta_seconds();
+    // }
+    // if input.pressed(p_settings.left_key) {
+    //     p_pos.translation.x -= PLAYER_SPEED * p_settings.speed_multiplier * time.delta_seconds();
+    // }
+    // if input.pressed(p_settings.right_key) {
+    //     p_pos.translation.x += PLAYER_SPEED * p_settings.speed_multiplier * time.delta_seconds();
+    // }
+
+    // if there are no enemy to go to and there are some queued
+    if p_settings.current_enemy_point.is_none() {
+        if let Some(point) = p_settings.points_queue.pop() {
+            p_settings.current_enemy_point = Some(point);
+            p_settings.steps_to_point = Some(
+                (p_pos.translation.xy().distance(point) / PLAYER_STEPS_PRO_SEC as f32) as usize,
+            );
+        }
     }
-    if input.pressed(p_settings.down_key) {
-        p_pos.translation.y -= PLAYER_SPEED * p_settings.speed_multiplier * time.delta_seconds();
-    }
-    if input.pressed(p_settings.left_key) {
-        p_pos.translation.x -= PLAYER_SPEED * p_settings.speed_multiplier * time.delta_seconds();
-    }
-    if input.pressed(p_settings.right_key) {
-        p_pos.translation.x += PLAYER_SPEED * p_settings.speed_multiplier * time.delta_seconds();
+
+    // if the step timer is ticked and we have a enemy to go to
+    if p_settings.step_timer.just_finished() && p_settings.current_enemy_point.is_some() {
+        println!("a");
+        p_settings.steps_done += 1;
+
+        // calculating the steps, which are left to go to the enemy.
+        let current_step = p_settings.steps_to_point.unwrap() - p_settings.steps_done;
+
+        // if we came to the enemy, reset all
+        if current_step == 0 {
+            p_settings.steps_to_point = None;
+            p_settings.steps_done = 0;
+            p_settings.start_point = p_settings.current_enemy_point.unwrap();
+            p_settings.current_enemy_point = None;
+        } else {
+            // change the position of the player with lerp function from start point of the road to
+            // enemy to the enemy
+            p_pos.translation = p_settings
+                .start_point
+                .lerp(
+                    p_settings.current_enemy_point.unwrap(),
+                    1. / current_step as f32,
+                )
+                .extend(PLAYER_Z);
+        }
     }
 }
 
