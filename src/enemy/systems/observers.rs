@@ -4,7 +4,7 @@ use bevy_kira_audio::prelude::*;
 use crate::{
     animation::AnimConfig,
     enemy::{Enemy, EnemyBundle},
-    player::{systems::PlayerUpgrade, Player},
+    player::{systems::PlayerUpgrade, CatchingRadius, Player},
     resources::{Game, Materials, MySettings},
 };
 
@@ -35,7 +35,8 @@ pub fn on_enemy_kill(
     mut ev_player_upgrade: EventWriter<PlayerUpgrade>,
     materials: Res<Materials>,
     en_q: Query<(&Transform, &Enemy), Without<Player>>,
-    mut player_q: Query<(&mut Transform, &Player)>,
+    mut catch_rad_q: Query<&CatchingRadius, Without<Player>>,
+    mut player_q: Query<&mut Transform, (With<Player>, Without<CatchingRadius>)>,
     mut commands: Commands,
     mut game: ResMut<Game>,
     audio: Res<Audio>,
@@ -43,7 +44,8 @@ pub fn on_enemy_kill(
 ) {
     for ev in ev_enemy_killed.read() {
         let (e_pos, enemy) = en_q.get(ev.0).unwrap();
-        let (mut p_pos, player) = player_q.get_single_mut().unwrap();
+        let mut p_pos = player_q.get_single_mut().unwrap();
+        let catch_rad = catch_rad_q.get_single_mut().unwrap();
 
         // spawning animation
         commands.spawn((
@@ -66,7 +68,7 @@ pub fn on_enemy_kill(
         ev_player_upgrade.send(PlayerUpgrade(enemy.super_power.clone()));
 
         // moving Player
-        // p_pos.translation = e_pos.translation;
+        p_pos.translation = e_pos.translation;
 
         // incriasing score
         game.score += 1;
@@ -76,7 +78,7 @@ pub fn on_enemy_kill(
 
         // spawning new enemy
         let (e_new, e_new_text) =
-            EnemyBundle::new_random_near_player(player.catching_radius_multiplier);
+            EnemyBundle::new_random_near_player(catch_rad.catching_radius_multiplier);
         commands.spawn(e_new).with_children(|parent| {
             parent.spawn(e_new_text);
         });

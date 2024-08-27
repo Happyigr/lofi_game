@@ -15,15 +15,15 @@ use bevy::{
 pub fn check_collision_with_enemy(
     mut not_catched_en_q: Query<(Entity, &Transform), (With<Enemy>, Without<Catchable>)>,
     mut catched_en_q: Query<(Entity, &Transform), (With<Enemy>, With<Catchable>)>,
-    player_q: Query<(&Transform, &Player), Without<Enemy>>,
+    player_q: Query<(&Transform, &CatchingRadius), Without<Enemy>>,
     mut commands: Commands,
 ) {
-    let (p_pos, player) = player_q.get_single().unwrap();
+    let (catch_rad_pos, catch_rad) = player_q.get_single().unwrap();
 
     // if in the catching range, add catchable component
     for (e_ent, e_pos) in &mut not_catched_en_q {
-        if p_pos.translation.distance(e_pos.translation)
-            < CATCH_RAD * player.catching_radius_multiplier + ENEMY_SIZE / 2.
+        if catch_rad_pos.translation.distance(e_pos.translation)
+            < CATCH_RAD * catch_rad.catching_radius_multiplier + ENEMY_SIZE / 2.
         {
             commands.entity(e_ent).insert(Catchable);
         }
@@ -31,8 +31,8 @@ pub fn check_collision_with_enemy(
 
     for (e_ent, e_pos) in &mut catched_en_q {
         // if not in the range, not catchable more.
-        if p_pos.translation.distance(e_pos.translation)
-            > CATCH_RAD * player.catching_radius_multiplier + ENEMY_SIZE / 2.
+        if catch_rad_pos.translation.distance(e_pos.translation)
+            > CATCH_RAD * catch_rad.catching_radius_multiplier + ENEMY_SIZE / 2.
         {
             commands.entity(e_ent).remove::<Catchable>();
         }
@@ -102,27 +102,25 @@ pub fn spawn_player(
     mut meshes: ResMut<Assets<Mesh>>,
     mut material: ResMut<Assets<ColorMaterial>>,
 ) {
-    commands
-        .spawn((
-            Player::default(),
-            SpriteBundle {
-                transform: Transform::from_translation(PLAYER_SPAWN_POS),
-                sprite: Sprite {
-                    color: Color::WHITE,
-                    custom_size: Some(Vec2::new(PLAYER_SIZE, PLAYER_SIZE)),
-                    ..Default::default()
-                },
+    commands.spawn((
+        Player::default(),
+        SpriteBundle {
+            transform: Transform::from_translation(PLAYER_SPAWN_POS),
+            sprite: Sprite {
+                color: Color::WHITE,
+                custom_size: Some(Vec2::new(PLAYER_SIZE, PLAYER_SIZE)),
                 ..Default::default()
             },
-        ))
-        .with_children(|parent| {
-            parent.spawn((
-                MaterialMesh2dBundle {
-                    mesh: Mesh2dHandle(meshes.add(Annulus::new(CATCH_RAD - 1., CATCH_RAD))),
-                    material: material.add(Color::hsl(1., 92., 79.)),
-                    ..Default::default()
-                },
-                CatchingRadius,
-            ));
-        });
+            ..Default::default()
+        },
+    ));
+
+    commands.spawn((
+        MaterialMesh2dBundle {
+            mesh: Mesh2dHandle(meshes.add(Annulus::new(CATCH_RAD - 1., CATCH_RAD))),
+            material: material.add(Color::hsl(1., 92., 79.)),
+            ..Default::default()
+        },
+        CatchingRadius::default(),
+    ));
 }

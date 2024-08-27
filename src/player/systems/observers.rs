@@ -15,7 +15,7 @@ pub struct PlayerUpgrade(pub SuperPower);
 pub fn on_player_upgrades(
     mut event_upgrade: EventReader<PlayerUpgrade>,
     mut player_q: Query<&mut Player>,
-    mut catch_rad_q: Query<Entity, With<CatchingRadius>>,
+    mut catch_rad_q: Query<(Entity, &mut CatchingRadius)>,
     mut meshes: ResMut<Assets<Mesh>>,
     mut material: ResMut<Assets<ColorMaterial>>,
     mut commands: Commands,
@@ -26,12 +26,12 @@ pub fn on_player_upgrades(
         match ev.0 {
             SuperPower::Boost => player.speed_up(),
             SuperPower::CatchRad => {
-                let catch_rad = catch_rad_q.get_single_mut().unwrap();
-                player.catch_rad_up();
-                commands.entity(catch_rad).insert(MaterialMesh2dBundle {
+                let (catch_rad_ent, mut catch_rad) = catch_rad_q.get_single_mut().unwrap();
+                catch_rad.catch_rad_up();
+                commands.entity(catch_rad_ent).insert(MaterialMesh2dBundle {
                     mesh: Mesh2dHandle(meshes.add(Annulus::new(
-                        CATCH_RAD * player.catching_radius_multiplier - 1.,
-                        CATCH_RAD * player.catching_radius_multiplier,
+                        CATCH_RAD * catch_rad.catching_radius_multiplier - 1.,
+                        CATCH_RAD * catch_rad.catching_radius_multiplier,
                     ))),
                     material: material.add(Color::hsl(1., 92., 79.)),
                     ..Default::default()
