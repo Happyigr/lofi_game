@@ -108,8 +108,7 @@ pub fn move_player(
     }
 
     // if the step timer is ticked and we have a enemy to go to
-    if p_settings.step_timer.just_finished() && p_settings.current_enemy_point.is_some() {
-        println!("a");
+    if p_settings.current_enemy_point.is_some() {
         p_settings.steps_done += 1;
 
         // calculating the steps, which are left to go to the enemy.

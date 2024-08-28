@@ -29,7 +29,7 @@ pub const MAP_H: f32 = 400.;
 pub const MAP_W: f32 = 700.;
 
 pub const TEXT_Z: f32 = 10.;
-pub const PLAYER_Z: f32 = 0.;
+pub const PLAYER_Z: f32 = 9.;
 
 pub const PLAYER_UP: KeyCode = KeyCode::ArrowUp;
 pub const PLAYER_DOWN: KeyCode = KeyCode::ArrowDown;
