@@ -14,6 +14,9 @@ pub struct EnemyKilled(pub Entity);
 #[derive(Component)]
 pub struct Catchable;
 
+#[derive(Component)]
+pub struct AwaitKilling;
+
 pub fn on_add_cathchable(
     trigger: Trigger<OnAdd, Catchable>,
     mut query: Query<(&mut Sprite, &Enemy)>,

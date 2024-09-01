@@ -1,7 +1,7 @@
 use crate::{
     constants::*,
     enemy::{
-        systems::{Catchable, EnemyKilled},
+        systems::{AwaitKilling, Catchable, EnemyKilled},
         Enemy,
     },
     player::{player::CatchingRadius, Player},
@@ -42,7 +42,8 @@ pub fn check_collision_with_enemy(
 }
 
 pub fn try_to_kill_enemy(
-    mut catched_en_q: Query<(Entity, &Transform, &Enemy), With<Catchable>>,
+    mut commands: Commands,
+    mut catched_en_q: Query<(Entity, &Transform, &Enemy), (With<Catchable>, Without<AwaitKilling>)>,
     mut player_q: Query<(&Transform, &mut Player), Without<Enemy>>,
     input: Res<ButtonInput<KeyCode>>,
 ) {
@@ -83,6 +84,7 @@ pub fn try_to_kill_enemy(
     enemy_to_kill
         .into_iter()
         .for_each(|(_, (_, e_ent, e_pos))| {
+            commands.entity(e_ent).insert(AwaitKilling);
             p_settings.add_killed_enemy(e_pos, e_ent);
         });
 }
