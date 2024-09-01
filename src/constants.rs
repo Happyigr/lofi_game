@@ -21,7 +21,7 @@ pub const XYLOPHONE_GM: &str = "sounds/xylophone/xylophone_gm.ogg";
 
 pub const PLAYER_SIZE: f32 = 32.0;
 pub const PLAYER_SPEED: f32 = 100.0;
-pub const PLAYER_STEPS_PRO_SEC: usize = 10;
+pub const PLAYER_STEPS_PRO_FIXED_UPDATE: usize = 2;
 pub const PLAYER_SPAWN_POS: Vec3 = Vec3::ZERO;
 pub const ENEMY_TO_PLAYER_DISTANCE: f32 = 10.;
 pub const CATCH_RAD: f32 = 100.;

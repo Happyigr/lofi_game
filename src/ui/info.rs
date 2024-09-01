@@ -1,15 +1,25 @@
 use crate::{
     enemy::SuperPower,
+    player::Player,
     resources::{Game, MySettings},
 };
-use bevy::{color::ColorToPacked, prelude::ResMut};
+use bevy::{
+    color::ColorToPacked,
+    prelude::{Query, ResMut},
+    transform::components::Transform,
+};
 use bevy_egui::{
     egui::{self, Color32},
     EguiContexts,
 };
 use strum::IntoEnumIterator;
 
-pub fn spawn_info_window(mut contexts: EguiContexts, mut settings: ResMut<MySettings>) {
+pub fn spawn_info_window(
+    mut contexts: EguiContexts,
+    mut settings: ResMut<MySettings>,
+    player_q: Query<(&Transform, &Player)>,
+) {
+    let (pos, player) = player_q.get_single().unwrap();
     egui::Window::new("Info").show(contexts.ctx_mut(), |ui| {
         ui.with_layout(
             egui::Layout {
@@ -22,22 +32,32 @@ pub fn spawn_info_window(mut contexts: EguiContexts, mut settings: ResMut<MySett
             },
             |ui| {
                 ui.horizontal_top(|ui| {
-                    ui.label("Type");
-                    ui.label(" | ");
-                    ui.label("Kill Key");
+                    ui.label(format!("pos: {:?}", pos.translation));
+                    if let Some(enemy) = player.current_enemy {
+                        ui.label(format!("current_enemy: {:?}", enemy));
+                    }
+                    ui.label(format!("steps done: {}", player.steps_done));
+                    if let Some(steps) = player.steps_to_point {
+                        ui.label(format!("steps to point: {}", steps));
+                    }
                 });
+                // ui.horizontal_top(|ui| {
+                //     ui.label("Type");
+                //     ui.label(" | ");
+                //     ui.label("Kill Key");
+                // });
 
-                for superpower in SuperPower::iter() {
-                    ui.horizontal_top(|ui| {
-                        let color = superpower.get_enemy_color().to_linear().to_u8_array();
-                        ui.colored_label(
-                            Color32::from_rgba_unmultiplied(color[0], color[1], color[2], color[3]),
-                            format!("{superpower}"),
-                        );
-                        ui.label(" | ");
-                        ui.label(format!("{}", superpower.get_keycode_str()));
-                    });
-                }
+                // for superpower in SuperPower::iter() {
+                //     ui.horizontal_top(|ui| {
+                //         let color = superpower.get_enemy_color().to_linear().to_u8_array();
+                //         ui.colored_label(
+                //             Color32::from_rgba_unmultiplied(color[0], color[1], color[2], color[3]),
+                //             format!("{superpower}"),
+                //         );
+                //         ui.label(" | ");
+                //         ui.label(format!("{}", superpower.get_keycode_str()));
+                //     });
+                // }
 
                 ui.horizontal_top(|ui| {
                     ui.add(

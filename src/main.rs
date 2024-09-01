@@ -40,8 +40,6 @@ fn main() {
         (change_audio).run_if(resource_changed::<MySettings>),
     );
 
-    app.add_systems(Update, spawn_info_window);
-
     app.add_systems(Update, (spawn_menu).run_if(in_state(GameState::Menu)));
 
     // app.add_systems(OnEnter(GameState::Menu), todo!());
@@ -51,11 +49,14 @@ fn main() {
     );
 
     app.add_systems(
+        FixedUpdate,
+        (check_collision_with_enemy, move_player).run_if(in_state(GameState::Game)),
+    );
+    app.add_systems(Update, spawn_info_window.run_if(in_state(GameState::Game)));
+    app.add_systems(
         Update,
         (
-            check_collision_with_enemy,
             try_to_kill_enemy,
-            move_player,
             execute_animations,
             change_score,
             on_enemy_kill,

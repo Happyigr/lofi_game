@@ -29,8 +29,8 @@ pub struct Player {
     pub speed_multiplier: f32,
 
     // points are the Vec2 of the enemies to which the player will go, to kill them
-    pub points_queue: Vec<Vec2>,
-    pub current_enemy_point: Option<Vec2>,
+    pub points_queue: Vec<(Vec2, Entity)>,
+    pub current_enemy: Option<(Vec2, Entity)>,
     pub steps_to_point: Option<usize>,
     pub start_point: Vec2,
     pub steps_done: usize,
@@ -42,12 +42,12 @@ impl Player {
     pub fn speed_up(&mut self) {
         self.speed_multiplier += BOOST_MULTIPLIER_DELTA;
         self.step_timer = Timer::from_seconds(
-            1. / (PLAYER_STEPS_PRO_SEC as f32 * self.speed_multiplier),
+            1. / (PLAYER_STEPS_PRO_FIXED_UPDATE as f32 * self.speed_multiplier),
             TimerMode::Repeating,
         );
     }
-    pub fn add_killed_enemy(&mut self, point: Vec2) {
-        self.points_queue.push(point);
+    pub fn add_killed_enemy(&mut self, point: Vec2, ent: Entity) {
+        self.points_queue.push((point, ent));
         println!("{:?}", self.points_queue);
     }
 }
@@ -63,9 +63,12 @@ impl Default for Player {
             points_queue: vec![],
             start_point: PLAYER_SPAWN_POS.xy(),
             steps_done: 0,
-            current_enemy_point: None,
+            current_enemy: None,
             steps_to_point: None,
-            step_timer: Timer::from_seconds(1. / PLAYER_STEPS_PRO_SEC as f32, TimerMode::Repeating),
+            step_timer: Timer::from_seconds(
+                1. / PLAYER_STEPS_PRO_FIXED_UPDATE as f32,
+                TimerMode::Repeating,
+            ),
         }
     }
 }

@@ -10,6 +10,7 @@ use bevy::{
     prelude::*,
     reflect::List,
     sprite::{MaterialMesh2dBundle, Mesh2dHandle},
+    ui::debug,
     utils::HashMap,
 };
 
@@ -42,42 +43,53 @@ pub fn check_collision_with_enemy(
 
 pub fn try_to_kill_enemy(
     mut catched_en_q: Query<(Entity, &Transform, &Enemy), With<Catchable>>,
-    player_q: Query<&Transform, (With<Player>, Without<Enemy>)>,
-    mut ev_enemy_kill: EventWriter<EnemyKilled>,
+    mut player_q: Query<(&Transform, &mut Player), Without<Enemy>>,
     input: Res<ButtonInput<KeyCode>>,
 ) {
-    let p_pos = player_q.get_single().unwrap();
-    let mut enemy_to_kill: HashMap<KeyCode, (f32, Entity)> = HashMap::new();
+    let (p_pos, mut p_settings) = player_q.get_single_mut().unwrap();
+    let mut enemy_to_kill: HashMap<KeyCode, (f32, Entity, Vec2)> = HashMap::new();
 
     for (e_ent, e_pos, e_catched) in &mut catched_en_q {
         let tapped_keycode = e_catched.super_power.get_keycode();
         // if catched, and the same type of the enemy wasnt catched, teleport to the enemy and kill it
 
         if input.just_pressed(tapped_keycode) {
-            if let Some((dist, _)) = enemy_to_kill.get_mut(&tapped_keycode) {
+            // sorted insertation if the enemy by the distance from player to the enemy
+            if let Some((dist, _, _)) = enemy_to_kill.get_mut(&tapped_keycode) {
                 if *dist > p_pos.translation.distance(e_pos.translation) {
                     enemy_to_kill.insert(
                         tapped_keycode,
-                        (p_pos.translation.distance(e_pos.translation), e_ent),
+                        (
+                            p_pos.translation.distance(e_pos.translation),
+                            e_ent,
+                            e_pos.translation.xy(),
+                        ),
                     );
                 }
             } else {
                 enemy_to_kill.insert(
                     tapped_keycode,
-                    (p_pos.translation.distance(e_pos.translation), e_ent),
+                    (
+                        p_pos.translation.distance(e_pos.translation),
+                        e_ent,
+                        e_pos.translation.xy(),
+                    ),
                 );
             }
         }
     }
 
     // killing each tapped enemy, sorted by the distance to the player
-    enemy_to_kill.into_iter().for_each(|(_, (_, e_ent))| {
-        ev_enemy_kill.send(EnemyKilled(e_ent));
-    });
+    enemy_to_kill
+        .into_iter()
+        .for_each(|(_, (_, e_ent, e_pos))| {
+            p_settings.add_killed_enemy(e_pos, e_ent);
+        });
 }
 
 pub fn move_player(
     mut player_q: Query<(&mut Transform, &mut Player)>,
+    mut ev_enemy_kill: EventWriter<EnemyKilled>,
     _time: Res<Time>,
     _input: Res<ButtonInput<KeyCode>>,
 ) {
@@ -98,38 +110,47 @@ pub fn move_player(
     // }
 
     // if there are no enemy to go to and there are some queued
-    if p_settings.current_enemy_point.is_none() {
-        if let Some(point) = p_settings.points_queue.pop() {
-            p_settings.current_enemy_point = Some(point);
+    if p_settings.current_enemy.is_none() {
+        if let Some((point, ent)) = p_settings.points_queue.pop() {
+            p_settings.current_enemy = Some((point, ent));
             p_settings.steps_to_point = Some(
-                (p_pos.translation.xy().distance(point) / PLAYER_STEPS_PRO_SEC as f32) as usize,
+                (p_settings.start_point.distance(point)
+                    / (PLAYER_STEPS_PRO_FIXED_UPDATE as f32 * p_settings.speed_multiplier))
+                    as usize,
             );
         }
     }
 
     // if the step timer is ticked and we have a enemy to go to
-    if p_settings.current_enemy_point.is_some() {
+    if p_settings.current_enemy.is_some() {
         p_settings.steps_done += 1;
 
         // calculating the steps, which are left to go to the enemy.
-        let current_step = p_settings.steps_to_point.unwrap() - p_settings.steps_done;
-
-        // if we came to the enemy, reset all
-        if current_step == 0 {
-            p_settings.steps_to_point = None;
-            p_settings.steps_done = 0;
-            p_settings.start_point = p_settings.current_enemy_point.unwrap();
-            p_settings.current_enemy_point = None;
-        } else {
+        if let Some(current_step) = p_settings
+            .steps_to_point
+            .unwrap()
+            .checked_sub(p_settings.steps_done)
+        {
+            // prevent dividing by 0
+            let current_step = current_step.max(1);
             // change the position of the player with lerp function from start point of the road to
             // enemy to the enemy
             p_pos.translation = p_settings
                 .start_point
                 .lerp(
-                    p_settings.current_enemy_point.unwrap(),
+                    p_settings.current_enemy.unwrap().0,
                     1. / current_step as f32,
                 )
                 .extend(PLAYER_Z);
+        }
+        // if we came to the enemy, reset all (by substracting with overflow -1 by usize)
+        else {
+            let (point, ent) = p_settings.current_enemy.unwrap();
+            p_settings.steps_to_point = None;
+            p_settings.steps_done = 0;
+            p_settings.start_point = point;
+            p_settings.current_enemy = None;
+            ev_enemy_kill.send(EnemyKilled(ent));
         }
     }
 }
