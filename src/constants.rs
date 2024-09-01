@@ -5,6 +5,7 @@ pub const BG_MUSIC: &str = "sounds/rain.ogg";
 pub const BOOM_SOUND: &str = "sounds/synt_explosion.ogg";
 pub const HEARTBEAT_SOUND: &str = "sounds/heartbeat.ogg";
 pub const MENU_ICON: &str = "icon.png";
+pub const PLAYER_UPGRADE: &str = "sounds/ui/Level Up.ogg";
 
 pub const FONT: &str = "fonts/Montserrat-Regular.ttf";
 pub const FONT_BOLD: &str = "fonts/Montserrat-Bold.ttf";
@@ -30,6 +31,7 @@ pub const MAP_W: f32 = 700.;
 
 pub const TEXT_Z: f32 = 10.;
 pub const PLAYER_Z: f32 = 9.;
+pub const ENEMY_Z: f32 = 8.;
 
 pub const PLAYER_UP: KeyCode = KeyCode::ArrowUp;
 pub const PLAYER_DOWN: KeyCode = KeyCode::ArrowDown;

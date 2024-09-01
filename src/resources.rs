@@ -1,6 +1,5 @@
 use crate::constants::*;
 use bevy::prelude::*;
-use bevy_egui::{egui, EguiContexts};
 
 #[derive(States, Copy, Clone, Eq, PartialEq, Debug, Default, Hash)]
 pub enum GameState {
@@ -54,9 +53,11 @@ pub struct Materials {
     pub bg_sound: Handle<bevy_kira_audio::AudioSource>,
     pub boom_sound: Handle<bevy_kira_audio::AudioSource>,
     pub heartbeat: Handle<bevy_kira_audio::AudioSource>,
+    pub level_up_sound: Handle<bevy_kira_audio::AudioSource>,
     pub xylophone: Xylophone,
     pub font: Handle<Font>,
     pub font_bold: Handle<Font>,
+    pub icon: Handle<Image>,
 }
 
 pub fn init_materials(
@@ -66,18 +67,17 @@ pub fn init_materials(
     mut meshes: ResMut<Assets<Mesh>>,
     mut material: ResMut<Assets<ColorMaterial>>,
 ) {
+    // textures
     let layout = TextureAtlasLayout::from_grid(UVec2::splat(512), 8, 8, None, None);
     let boom_animation_layout = texture_atlas_layouts.add(layout);
     let boom_animation_texture = asset_server.load(EXPLOSION_SPRITESHEET);
+    let icon = asset_server.load(MENU_ICON);
 
+    // sounds
     let bg_sound = asset_server.load(BG_MUSIC);
     let boom_sound = asset_server.load(BOOM_SOUND);
-    let player_catching_radius_mesh = meshes.add(Annulus::new(CATCH_RAD - 1., CATCH_RAD));
-    let player_catching_radius_color = material.add(Color::hsl(1., 92., 79.));
-
-    let font = asset_server.load(FONT);
-    let font_bold = asset_server.load(FONT_BOLD);
-
+    let heartbeat = asset_server.load(HEARTBEAT_SOUND);
+    let level_up_sound = asset_server.load(PLAYER_UPGRADE);
     let xylophone = Xylophone {
         sweep: asset_server.load(XYLOPHONE_SWEEP),
         c: asset_server.load(XYLOPHONE_C),
@@ -90,7 +90,13 @@ pub fn init_materials(
         gm: asset_server.load(XYLOPHONE_GM),
     };
 
-    let heartbeat = asset_server.load(HEARTBEAT_SOUND);
+    // misc
+    let player_catching_radius_mesh = meshes.add(Annulus::new(CATCH_RAD - 1., CATCH_RAD));
+    let player_catching_radius_color = material.add(Color::hsl(1., 92., 79.));
+
+    // fonts
+    let font = asset_server.load(FONT);
+    let font_bold = asset_server.load(FONT_BOLD);
 
     materials.boom_animation_layout = boom_animation_layout;
     materials.boom_animation_texture = boom_animation_texture;
@@ -102,4 +108,6 @@ pub fn init_materials(
     materials.heartbeat = heartbeat;
     materials.font = font;
     materials.font_bold = font_bold;
+    materials.icon = icon;
+    materials.level_up_sound = level_up_sound;
 }

@@ -33,6 +33,14 @@ pub fn on_remove_cathchable(
     sprite.color = enemy.super_power.get_enemy_color();
 }
 
+pub fn on_await_killing(
+    trigger: Trigger<OnAdd, AwaitKilling>,
+    mut query: Query<(&mut Sprite, &Enemy)>,
+) {
+    let (mut sprite, enemy) = query.get_mut(trigger.entity()).unwrap();
+    sprite.color = enemy.super_power.get_enemy_color().mix(&Color::BLACK, 0.5);
+}
+
 pub fn on_enemy_kill(
     mut ev_enemy_killed: EventReader<EnemyKilled>,
     mut ev_player_upgrade: EventWriter<PlayerUpgrade>,

@@ -13,7 +13,8 @@ use bevy_egui::EguiPlugin;
 use bevy_kira_audio::AudioPlugin;
 use camera::spawn_camera;
 use enemy::systems::{
-    on_add_cathchable, on_enemy_kill, on_remove_cathchable, spawn_enemies, EnemyKilled,
+    on_add_cathchable, on_await_killing, on_enemy_kill, on_remove_cathchable, spawn_enemies,
+    EnemyKilled,
 };
 use player::systems::{
     check_collision_with_enemy, move_player, on_player_upgrades, spawn_player, try_to_kill_enemy,
@@ -67,6 +68,7 @@ fn main() {
 
     app.observe(on_add_cathchable);
     app.observe(on_remove_cathchable);
+    app.observe(on_await_killing);
 
     app.run();
 }

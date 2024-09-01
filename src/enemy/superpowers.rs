@@ -141,7 +141,7 @@ impl SuperPower {
             SuperPower::GM => materials.xylophone.gm.clone(),
             SuperPower::A => materials.xylophone.a.clone(),
             SuperPower::B => materials.xylophone.b.clone(),
-            _ => materials.heartbeat.clone(),
+            _ => materials.level_up_sound.clone(),
         }
     }
 }

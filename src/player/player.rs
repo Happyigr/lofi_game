@@ -24,10 +24,10 @@ impl CatchingRadius {
 
 #[derive(Component)]
 pub struct Player {
-    pub up_key: KeyCode,
-    pub down_key: KeyCode,
-    pub right_key: KeyCode,
-    pub left_key: KeyCode,
+    // pub up_key: KeyCode,
+    // pub down_key: KeyCode,
+    // pub right_key: KeyCode,
+    // pub left_key: KeyCode,
     pub speed_multiplier: f32,
 
     // points are the Vec2 of the enemies to which the player will go, to kill them
@@ -56,10 +56,10 @@ impl Player {
 impl Default for Player {
     fn default() -> Self {
         Self {
-            up_key: PLAYER_UP,
-            down_key: PLAYER_DOWN,
-            right_key: PLAYER_RIGHT,
-            left_key: PLAYER_LEFT,
+            // up_key: PLAYER_UP,
+            // down_key: PLAYER_DOWN,
+            // right_key: PLAYER_RIGHT,
+            // left_key: PLAYER_LEFT,
             speed_multiplier: 1.0,
             points_queue: VecDeque::new(),
             start_point: PLAYER_SPAWN_POS.xy(),

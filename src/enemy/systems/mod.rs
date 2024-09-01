@@ -2,6 +2,7 @@ mod observers;
 mod systems;
 
 pub use observers::on_add_cathchable;
+pub use observers::on_await_killing;
 pub use observers::on_enemy_kill;
 pub use observers::on_remove_cathchable;
 
