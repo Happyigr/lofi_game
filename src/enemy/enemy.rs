@@ -26,7 +26,6 @@ impl EnemyBundle {
     // returns a bundle with SpriteBundle with enemy Component and Text2dBundle as child, to easily
     // control text
     pub fn new(super_power: SuperPower, catch_rad_multiple: f32) -> (EnemyBundle, Text2dBundle) {
-        println!("{}", catch_rad_multiple);
         let mut spawnpoint_norm_vec = Vec2::new(
             rand::thread_rng().gen_range(-1.0..1.),
             rand::thread_rng().gen_range(-1.0..1.),

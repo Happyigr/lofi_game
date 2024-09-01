@@ -10,7 +10,6 @@ use bevy::{
     prelude::*,
     reflect::List,
     sprite::{MaterialMesh2dBundle, Mesh2dHandle},
-    ui::debug,
     utils::HashMap,
 };
 
@@ -113,7 +112,7 @@ pub fn move_player(
 
     // if there are no enemy to go to and there are some queued
     if p_settings.current_enemy.is_none() {
-        if let Some((point, ent)) = p_settings.points_queue.pop() {
+        if let Some((point, ent)) = p_settings.points_queue.pop_front() {
             p_settings.current_enemy = Some((point, ent));
             p_settings.steps_to_point = Some(
                 (p_settings.start_point.distance(point)

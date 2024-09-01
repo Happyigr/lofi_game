@@ -1,3 +1,5 @@
+use std::collections::VecDeque;
+
 use crate::constants::*;
 use bevy::prelude::*;
 
@@ -29,7 +31,7 @@ pub struct Player {
     pub speed_multiplier: f32,
 
     // points are the Vec2 of the enemies to which the player will go, to kill them
-    pub points_queue: Vec<(Vec2, Entity)>,
+    pub points_queue: VecDeque<(Vec2, Entity)>,
     pub current_enemy: Option<(Vec2, Entity)>,
     pub steps_to_point: Option<usize>,
     pub start_point: Vec2,
@@ -47,8 +49,7 @@ impl Player {
         );
     }
     pub fn add_killed_enemy(&mut self, point: Vec2, ent: Entity) {
-        self.points_queue.push((point, ent));
-        println!("{:?}", self.points_queue);
+        self.points_queue.push_back((point, ent));
     }
 }
 
@@ -60,7 +61,7 @@ impl Default for Player {
             right_key: PLAYER_RIGHT,
             left_key: PLAYER_LEFT,
             speed_multiplier: 1.0,
-            points_queue: vec![],
+            points_queue: VecDeque::new(),
             start_point: PLAYER_SPAWN_POS.xy(),
             steps_done: 0,
             current_enemy: None,
