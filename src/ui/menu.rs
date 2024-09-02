@@ -17,9 +17,9 @@ pub fn spawn_menu(mut contexts: EguiContexts, mut game_state: ResMut<NextState<G
                     cross_justify: false,
                 },
                 |ui| {
-                    ui.add(egui::widgets::Image::new(egui::include_image!(
-                        "../../assets/icon.png"
-                    )));
+                    // ui.add(egui::widgets::Image::new(egui::include_image!(
+                    //     "../../assets/icon.png"
+                    // )));
 
                     ui.separator();
 

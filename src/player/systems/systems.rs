@@ -5,10 +5,10 @@ use crate::{
         Enemy,
     },
     player::{player::CatchingRadius, Player},
+    resources::Materials,
 };
 use bevy::{
     prelude::*,
-    reflect::List,
     sprite::{MaterialMesh2dBundle, Mesh2dHandle},
     utils::HashMap,
 };
@@ -160,10 +160,12 @@ pub fn spawn_player(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
     mut material: ResMut<Assets<ColorMaterial>>,
+    materials: Res<Materials>,
 ) {
     commands.spawn((
         Player::default(),
         SpriteBundle {
+            texture: materials.idle_male.clone(),
             transform: Transform::from_translation(PLAYER_SPAWN_POS),
             sprite: Sprite {
                 color: Color::WHITE,

@@ -1,5 +1,5 @@
 use super::SuperPower;
-use crate::constants::*;
+use crate::{constants::*, resources::Materials};
 use bevy::prelude::*;
 use rand::Rng;
 
@@ -18,14 +18,27 @@ pub struct EnemyBundle {
 
 impl EnemyBundle {
     // returns a new enemy with random superpower
-    pub fn new_random_near_player(catch_rad_multiple: f32) -> (EnemyBundle, Text2dBundle) {
+    pub fn new_random_near_player(
+        catch_rad_multiple: f32,
+        materials: &Materials,
+    ) -> (EnemyBundle, Text2dBundle) {
         let super_power = SuperPower::rand_new();
-        EnemyBundle::new(super_power, catch_rad_multiple)
+        EnemyBundle::new(super_power, catch_rad_multiple, materials)
     }
 
     // returns a bundle with SpriteBundle with enemy Component and Text2dBundle as child, to easily
     // control text
-    pub fn new(super_power: SuperPower, catch_rad_multiple: f32) -> (EnemyBundle, Text2dBundle) {
+    pub fn new(
+        super_power: SuperPower,
+        catch_rad_multiple: f32,
+        materials: &Materials,
+    ) -> (EnemyBundle, Text2dBundle) {
+        let sprite_size = if super_power.get_texture(materials).is_some() {
+            default()
+        } else {
+            Some(Vec2::new(ENEMY_SIZE, ENEMY_SIZE))
+        };
+
         let mut spawnpoint_norm_vec = Vec2::new(
             rand::thread_rng().gen_range(-1.0..1.),
             rand::thread_rng().gen_range(-1.0..1.),
@@ -46,6 +59,7 @@ impl EnemyBundle {
         (
             EnemyBundle {
                 sprite: SpriteBundle {
+                    texture: super_power.get_texture(materials).unwrap_or_default(),
                     transform: Transform::from_xyz(
                         spawnpoint_norm_vec.x * dist_from_player,
                         spawnpoint_norm_vec.y * dist_from_player,
@@ -53,7 +67,7 @@ impl EnemyBundle {
                     ),
                     sprite: Sprite {
                         color: super_power.get_enemy_color(),
-                        custom_size: Some(Vec2::new(ENEMY_SIZE, ENEMY_SIZE)),
+                        custom_size: sprite_size,
                         ..Default::default()
                     },
                     ..Default::default()

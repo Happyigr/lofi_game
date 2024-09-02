@@ -1,7 +1,7 @@
 use core::fmt::Display;
 
 use crate::{constants::*, resources::Materials};
-use bevy::prelude::*;
+use bevy::{prelude::*, reflect::List};
 use bevy_kira_audio::AudioSource;
 use rand::Rng;
 use strum::{EnumCount, EnumIter};
@@ -142,6 +142,20 @@ impl SuperPower {
             SuperPower::A => materials.xylophone.a.clone(),
             SuperPower::B => materials.xylophone.b.clone(),
             _ => materials.level_up_sound.clone(),
+        }
+    }
+
+    pub fn get_texture(&self, materials: &Materials) -> Option<Handle<Image>> {
+        match self {
+            SuperPower::Boost => Some(materials.red_crystal_img.clone()),
+            SuperPower::Jump => Some(materials.green_crystal_img.clone()),
+            SuperPower::CatchRad => Some(materials.blue_crystal_img.clone()),
+            SuperPower::Boom => Some(materials.purple_crystal_img.clone()),
+            SuperPower::Poop => Some(materials.gold_crystal_img.clone()),
+            _ => {
+                let num = rand::thread_rng().gen_range(0..materials.notes.len() - 1);
+                return Some(materials.notes[num].clone());
+            }
         }
     }
 }

@@ -4,6 +4,9 @@ Catching radius will be always bigger as more kills were made - []
 
 # Credits: 
 ## Assets: 
+- Crystals - https://opengameart.org/node/79572
+- Skelet - Johannes Sjölund
+- Notes - https://opengameart.org/content/colored-music-notes-with-cartoon-tiger-head-in-place-of-the-circle
 
 ## Sounds: 
 - Lasers... - Kenney.nl

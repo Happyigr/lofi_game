@@ -1,5 +1,5 @@
 use crate::constants::*;
-use bevy::prelude::*;
+use bevy::{prelude::*, reflect::List};
 
 #[derive(States, Copy, Clone, Eq, PartialEq, Debug, Default, Hash)]
 pub enum GameState {
@@ -58,6 +58,19 @@ pub struct Materials {
     pub font: Handle<Font>,
     pub font_bold: Handle<Font>,
     pub icon: Handle<Image>,
+    pub blue_crystal_img: Handle<Image>,
+    pub gold_crystal_img: Handle<Image>,
+    pub green_crystal_img: Handle<Image>,
+    pub ice_crystal_img: Handle<Image>,
+    pub purple_crystal_img: Handle<Image>,
+    pub red_crystal_img: Handle<Image>,
+    pub hit_male_layout: Handle<TextureAtlasLayout>,
+    pub hit_top_male: Handle<Image>,
+    pub hit_bottom_male: Handle<Image>,
+    pub hit_left_male: Handle<Image>,
+    pub hit_right_male: Handle<Image>,
+    pub idle_male: Handle<Image>,
+    pub notes: Vec<Handle<Image>>,
 }
 
 pub fn init_materials(
@@ -71,7 +84,24 @@ pub fn init_materials(
     let layout = TextureAtlasLayout::from_grid(UVec2::splat(512), 8, 8, None, None);
     let boom_animation_layout = texture_atlas_layouts.add(layout);
     let boom_animation_texture = asset_server.load(EXPLOSION_SPRITESHEET);
+    let layout = TextureAtlasLayout::from_grid(UVec2::splat(64), 4, 1, None, Some(UVec2::splat(1)));
+    let hit_male_layout = texture_atlas_layouts.add(layout);
+    let hit_top_male = asset_server.load(HIT_TOP_MALE);
+    let hit_bottom_male = asset_server.load(HIT_BOTTOM_MALE);
+    let hit_left_male = asset_server.load(HIT_LEFT_MALE);
+    let hit_right_male = asset_server.load(HIT_RIGHT_MALE);
+    let idle_male = asset_server.load(IDLE_MALE);
     let icon = asset_server.load(MENU_ICON);
+    let blue_crystal_img = asset_server.load(BLUE_CRYSTAL);
+    let gold_crystal_img = asset_server.load(GOLD_CRYSTAL);
+    let green_crystal_img = asset_server.load(GREEN_CRYSTAL);
+    let ice_crystal_img = asset_server.load(ICE_CRYSTAL);
+    let purple_crystal_img = asset_server.load(PURPLE_CRYSTAL);
+    let red_crystal_img = asset_server.load(RED_CRYSTAL);
+    let blue_note = asset_server.load(BLUE_NOTE);
+    let orange_note = asset_server.load(ORANGE_NOTE);
+    let red_note = asset_server.load(RED_NOTE);
+    let pink_note = asset_server.load(PINK_NOTE);
 
     // sounds
     let bg_sound = asset_server.load(BG_MUSIC);
@@ -110,4 +140,20 @@ pub fn init_materials(
     materials.font_bold = font_bold;
     materials.icon = icon;
     materials.level_up_sound = level_up_sound;
+    materials.blue_crystal_img = blue_crystal_img;
+    materials.gold_crystal_img = gold_crystal_img;
+    materials.green_crystal_img = green_crystal_img;
+    materials.ice_crystal_img = ice_crystal_img;
+    materials.purple_crystal_img = purple_crystal_img;
+    materials.red_crystal_img = red_crystal_img;
+    materials.hit_male_layout = hit_male_layout;
+    materials.hit_top_male = hit_top_male;
+    materials.hit_bottom_male = hit_bottom_male;
+    materials.hit_left_male = hit_left_male;
+    materials.hit_right_male = hit_right_male;
+    materials.idle_male = idle_male;
+    materials.notes.push(blue_note);
+    materials.notes.push(pink_note);
+    materials.notes.push(orange_note);
+    materials.notes.push(red_note);
 }

@@ -71,7 +71,9 @@ pub fn on_enemy_kill(
         ));
 
         // playing sound
-        audio.play(enemy.super_power.get_sound(&materials));
+        audio
+            .play(enemy.super_power.get_sound(&materials))
+            .with_volume(0.5);
 
         // activating superpower
         ev_player_upgrade.send(PlayerUpgrade(enemy.super_power.clone()));
@@ -84,7 +86,7 @@ pub fn on_enemy_kill(
 
         // spawning new enemy
         let (e_new, e_new_text) =
-            EnemyBundle::new_random_near_player(catch_rad.catching_radius_multiplier);
+            EnemyBundle::new_random_near_player(catch_rad.catching_radius_multiplier, &materials);
         commands.spawn(e_new).with_children(|parent| {
             parent.spawn(e_new_text);
         });
